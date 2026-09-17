@@ -315,7 +315,7 @@
             <span>TỔNG TƯỚNG LIÊN QUÂN</span>
             <i class="fa-solid fa-shield-halved text-neon-green"></i>
           </div>
-          <div class="text-xl sm:text-2xl font-tech font-bold text-white mt-1">128 <span class="text-xs text-neon-green font-normal">TƯỚNG</span></div>
+          <div class="text-xl sm:text-2xl font-tech font-bold text-white mt-1">129 <span class="text-xs text-neon-green font-normal">TƯỚNG</span></div>
         </div>
 
         <div class="clip-chamfer bg-cyber-dark border border-cyber-border p-3 hud-bracket">
@@ -323,7 +323,7 @@
             <span>ĐANG KÍCH HOẠT QUAY</span>
             <i class="fa-solid fa-filter text-cyber-cyan"></i>
           </div>
-          <div class="text-xl sm:text-2xl font-tech font-bold text-cyber-cyan mt-1" id="hud-active-count">128 <span class="text-xs text-gray-400 font-normal">/ 128</span></div>
+          <div class="text-xl sm:text-2xl font-tech font-bold text-cyber-cyan mt-1" id="hud-active-count">129 <span class="text-xs text-gray-400 font-normal">/ 129</span></div>
         </div>
 
         <div class="clip-chamfer bg-cyber-dark border border-cyber-border p-3 hud-bracket">
@@ -402,7 +402,7 @@
               <div id="wheel-center-hub" class="absolute z-20 w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-cyber-dark border-2 border-neon-green box-glow-green flex flex-col items-center justify-center p-2 text-center select-none pointer-events-none">
                 <div class="w-2.5 h-2.5 rounded-full bg-neon-green animate-ping mb-1"></div>
                 <span class="text-[10px] font-tech text-gray-400 uppercase tracking-tighter">AOV CORE</span>
-                <span id="wheel-center-number" class="text-xs sm:text-sm font-tech font-black text-white">128 HERO</span>
+                <span id="wheel-center-number" class="text-xs sm:text-sm font-tech font-black text-white">129 HERO</span>
               </div>
             </div>
 
@@ -459,7 +459,7 @@
                 <h3 class="font-tech text-sm sm:text-base font-bold tracking-wider text-white">BỘ LỌC DANH SÁCH TƯỚNG</h3>
               </div>
               <span id="filter-selected-badge" class="text-xs font-tech px-2 py-0.5 bg-neon-green/10 text-neon-green border border-neon-green/30">
-                128/128 TƯỚNG
+                129/129 TƯỚNG
               </span>
             </div>
 
@@ -467,7 +467,7 @@
             <div class="grid grid-cols-2 gap-2 mb-3">
               <button id="btn-select-all" class="py-2 px-3 clip-chamfer bg-cyber-surface border border-cyber-border hover:border-neon-green text-gray-200 hover:text-neon-green font-tech text-xs tracking-wider transition-all flex items-center justify-center gap-1.5">
                 <i class="fa-solid fa-square-check text-neon-green"></i>
-                CHỌN TẤT CẢ (128)
+                CHỌN TẤT CẢ (129)
               </button>
               <button id="btn-deselect-all" class="py-2 px-3 clip-chamfer bg-cyber-surface border border-cyber-border hover:border-neon-pink text-gray-200 hover:text-neon-pink font-tech text-xs tracking-wider transition-all flex items-center justify-center gap-1.5">
                 <i class="fa-solid fa-square-xmark text-neon-pink"></i>
@@ -500,14 +500,14 @@
               <button data-role="Đỡ Đòn" class="role-filter-btn px-2.5 py-1 text-xs font-tech clip-chamfer bg-cyber-surface text-gray-300 border border-cyber-border hover:border-neon-cyan transition-all">ĐỠ ĐÒN</button>
             </div>
 
-            <!-- Hero List Container (Scrollable 128 heroes with check/uncheck) -->
+            <!-- Hero List Container (Scrollable 129 heroes with check/uncheck) -->
             <div class="border border-cyber-border bg-cyber-surface/50 p-2 rounded max-h-[300px] overflow-y-auto" id="heroes-checkbox-list">
               <!-- Dynamically generated hero list items -->
             </div>
 
             <div class="mt-2 text-[11px] font-tech text-gray-400 flex items-center justify-between">
               <span>MẸO: Click trực tiếp vào tên tướng để Bật/Tắt</span>
-              <span id="visible-count-label" class="text-neon-cyan">Hiển thị 128 tướng</span>
+              <span id="visible-count-label" class="text-neon-cyan">Hiển thị 129 tướng</span>
             </div>
 
           </div>
@@ -703,7 +703,7 @@
      * Toàn bộ mã nguồn hoàn chỉnh chuẩn Vercel Single-Page Deployment
      */
 
-    // 1. DANH SÁCH 128 TƯỚNG LIÊN QUAN MOBILE THEO ĐÚNG THỨ TỰ VÀ ID YÊU CẦU
+    // 1. DANH SÁCH 129 TƯỚNG LIÊN QUAN MOBILE THEO ĐÚNG THỨ TỰ VÀ ID YÊU CẦU
     const HERO_LIST = [
       { id: 1, name: "Tamyn", role: "Trợ Thủ" },
       { id: 2, name: "Flowborn (xạ thủ)", role: "Xạ Thủ" },
@@ -729,115 +729,116 @@
       { id: 22, name: "Yan", role: "Sát Thủ" },
       { id: 23, name: "Aya", role: "Trợ Thủ" },
       { id: 24, name: "Aoi", role: "Sát Thủ" },
-      { id: 25, name: "Bright", role: "Sát Thủ" },
-      { id: 26, name: "Lorion", role: "Pháp Sư" },
-      { id: 27, name: "Dextra", role: "Đấu Sĩ" },
-      { id: 28, name: "Sinestrea", role: "Sát Thủ" },
-      { id: 29, name: "Thorne", role: "Xạ Thủ" },
-      { id: 30, name: "Allain", role: "Đấu Sĩ" },
-      { id: 31, name: "Zata", role: "Pháp Sư" },
-      { id: 32, name: "Rouie", role: "Trợ Thủ" },
-      { id: 33, name: "Laville", role: "Xạ Thủ" },
-      { id: 34, name: "Paine", role: "Sát Thủ" },
-      { id: 35, name: "Ata", role: "Đỡ Đòn" },
-      { id: 36, name: "Keera", role: "Sát Thủ" },
-      { id: 37, name: "Ishar", role: "Pháp Sư" },
-      { id: 38, name: "Eland'orr", role: "Xạ Thủ" },
-      { id: 39, name: "Krizzix", role: "Trợ Thủ" },
-      { id: 40, name: "Volkath", role: "Đấu Sĩ" },
-      { id: 41, name: "Celica", role: "Xạ Thủ" },
-      { id: 42, name: "Zip", role: "Trợ Thủ" },
-      { id: 43, name: "Enzo", role: "Sát Thủ" },
-      { id: 44, name: "Yena", role: "Đấu Sĩ" },
-      { id: 45, name: "Errol", role: "Đấu Sĩ" },
-      { id: 46, name: "Capheny", role: "Xạ Thủ" },
-      { id: 47, name: "Hayate", role: "Xạ Thủ" },
-      { id: 48, name: "D'Arcy", role: "Pháp Sư" },
-      { id: 49, name: "Veres", role: "Đấu Sĩ" },
-      { id: 50, name: "Florentino", role: "Đấu Sĩ" },
-      { id: 51, name: "Sephera", role: "Pháp Sư" },
-      { id: 52, name: "Quillen", role: "Sát Thủ" },
-      { id: 53, name: "Wiro", role: "Đỡ Đòn" },
-      { id: 54, name: "Richter", role: "Đấu Sĩ" },
-      { id: 55, name: "Elsu", role: "Xạ Thủ" },
-      { id: 56, name: "Y'bneth", role: "Đỡ Đòn" },
-      { id: 57, name: "Amily", role: "Đấu Sĩ" },
-      { id: 58, name: "Annette", role: "Trợ Thủ" },
-      { id: 59, name: "Baldum", role: "Đỡ Đòn" },
-      { id: 60, name: "Roxie", role: "Đỡ Đòn" },
-      { id: 61, name: "Marja", role: "Pháp Sư" },
-      { id: 62, name: "Rourke", role: "Đấu Sĩ" },
-      { id: 63, name: "Arum", role: "Trợ Thủ" },
-      { id: 64, name: "Wisp", role: "Xạ Thủ" },
-      { id: 65, name: "The Flash", role: "Pháp Sư" },
-      { id: 66, name: "Max", role: "Đấu Sĩ" },
-      { id: 67, name: "Liliana", role: "Pháp Sư" },
-      { id: 68, name: "Tulen", role: "Pháp Sư" },
-      { id: 69, name: "Omen", role: "Đấu Sĩ" },
-      { id: 70, name: "Lindis", role: "Xạ Thủ" },
-      { id: 71, name: "TeeMee", role: "Trợ Thủ" },
-      { id: 72, name: "Moren", role: "Xạ Thủ" },
-      { id: 73, name: "Kil'Groth", role: "Đấu Sĩ" },
-      { id: 74, name: "Xeniel", role: "Đỡ Đòn" },
-      { id: 75, name: "Wonder Woman", role: "Đấu Sĩ" },
-      { id: 76, name: "Superman", role: "Đấu Sĩ" },
-      { id: 77, name: "Tel'Annas", role: "Xạ Thủ" },
-      { id: 78, name: "Astrid", role: "Đấu Sĩ" },
-      { id: 79, name: "Ryoma", role: "Đấu Sĩ" },
-      { id: 80, name: "Stuart (The Joker)", role: "Xạ Thủ" },
-      { id: 81, name: "Arduin", role: "Đỡ Đòn" },
-      { id: 82, name: "Zill", role: "Sát Thủ" },
-      { id: 83, name: "Murad", role: "Sát Thủ" },
-      { id: 84, name: "Ignis", role: "Pháp Sư" },
-      { id: 85, name: "Zuka", role: "Đấu Sĩ" },
-      { id: 86, name: "Airi", role: "Sát Thủ" },
-      { id: 87, name: "Kaine (Batman)", role: "Sát Thủ" },
-      { id: 88, name: "Lauriel", role: "Pháp Sư" },
-      { id: 89, name: "Raz", role: "Pháp Sư" },
-      { id: 90, name: "Skud", role: "Đấu Sĩ" },
-      { id: 91, name: "Preyta", role: "Pháp Sư" },
-      { id: 92, name: "Ilumia", role: "Pháp Sư" },
-      { id: 93, name: "Slimz", role: "Xạ Thủ" },
-      { id: 94, name: "Arthur", role: "Đấu Sĩ" },
-      { id: 95, name: "Kriknak", role: "Sát Thủ" },
-      { id: 96, name: "Ngộ Không", role: "Sát Thủ" },
-      { id: 97, name: "Maloch", role: "Đấu Sĩ" },
-      { id: 98, name: "Helen (Payna)", role: "Trợ Thủ" },
-      { id: 99, name: "Jinna", role: "Pháp Sư" },
-      { id: 100, name: "Cresht", role: "Đỡ Đòn" },
-      { id: 101, name: "Natalya", role: "Pháp Sư" },
-      { id: 102, name: "Lumburr", role: "Đỡ Đòn" },
-      { id: 103, name: "Fennik", role: "Xạ Thủ" },
-      { id: 104, name: "Aleister", role: "Pháp Sư" },
-      { id: 105, name: "Grakk", role: "Đỡ Đòn" },
-      { id: 106, name: "Nakroth", role: "Sát Thủ" },
-      { id: 107, name: "Taara", role: "Đỡ Đòn" },
-      { id: 108, name: "Toro", role: "Đỡ Đòn" },
-      { id: 109, name: "Yorn", role: "Xạ Thủ" },
-      { id: 110, name: "Gildur", role: "Đỡ Đòn" },
-      { id: 111, name: "Alice", role: "Trợ Thủ" },
-      { id: 112, name: "Azzen'Ka", role: "Pháp Sư" },
-      { id: 113, name: "Ormarr", role: "Đấu Sĩ" },
-      { id: 114, name: "Butterfly", role: "Sát Thủ" },
-      { id: 115, name: "Violet", role: "Xạ Thủ" },
-      { id: 116, name: "Chaugnar", role: "Đỡ Đòn" },
-      { id: 117, name: "Điêu Thuyền", role: "Pháp Sư" },
-      { id: 118, name: "Zephys", role: "Đấu Sĩ" },
-      { id: 119, name: "Kahlii", role: "Pháp Sư" },
-      { id: 120, name: "Omega", role: "Đỡ Đòn" },
-      { id: 121, name: "Triệu Vân", role: "Sát Thủ" },
-      { id: 122, name: "Mganga", role: "Pháp Sư" },
-      { id: 123, name: "Krixi", role: "Pháp Sư" },
-      { id: 124, name: "Mina", role: "Đỡ Đòn" },
-      { id: 125, name: "Lữ Bố", role: "Đấu Sĩ" },
-      { id: 126, name: "Veera", role: "Pháp Sư" },
-      { id: 127, name: "Thane", role: "Đỡ Đòn" },
-      { id: 128, name: "Valhein", role: "Xạ Thủ" }
+      { id: 25, name: "Iggy", role: "Pháp Sư" },
+      { id: 26, name: "Bright", role: "Sát Thủ" },
+      { id: 27, name: "Lorion", role: "Pháp Sư" },
+      { id: 28, name: "Dextra", role: "Đấu Sĩ" },
+      { id: 29, name: "Sinestrea", role: "Sát Thủ" },
+      { id: 30, name: "Thorne", role: "Xạ Thủ" },
+      { id: 31, name: "Allain", role: "Đấu Sĩ" },
+      { id: 32, name: "Zata", role: "Pháp Sư" },
+      { id: 33, name: "Rouie", role: "Trợ Thủ" },
+      { id: 34, name: "Laville", role: "Xạ Thủ" },
+      { id: 35, name: "Paine", role: "Sát Thủ" },
+      { id: 36, name: "Ata", role: "Đỡ Đòn" },
+      { id: 37, name: "Keera", role: "Sát Thủ" },
+      { id: 38, name: "Ishar", role: "Pháp Sư" },
+      { id: 39, name: "Eland'orr", role: "Xạ Thủ" },
+      { id: 40, name: "Krizzix", role: "Trợ Thủ" },
+      { id: 41, name: "Volkath", role: "Đấu Sĩ" },
+      { id: 42, name: "Celica", role: "Xạ Thủ" },
+      { id: 43, name: "Zip", role: "Trợ Thủ" },
+      { id: 44, name: "Enzo", role: "Sát Thủ" },
+      { id: 45, name: "Yena", role: "Đấu Sĩ" },
+      { id: 46, name: "Errol", role: "Đấu Sĩ" },
+      { id: 47, name: "Capheny", role: "Xạ Thủ" },
+      { id: 48, name: "Hayate", role: "Xạ Thủ" },
+      { id: 49, name: "D'Arcy", role: "Pháp Sư" },
+      { id: 50, name: "Veres", role: "Đấu Sĩ" },
+      { id: 51, name: "Florentino", role: "Đấu Sĩ" },
+      { id: 52, name: "Sephera", role: "Pháp Sư" },
+      { id: 53, name: "Quillen", role: "Sát Thủ" },
+      { id: 54, name: "Wiro", role: "Đỡ Đòn" },
+      { id: 55, name: "Richter", role: "Đấu Sĩ" },
+      { id: 56, name: "Elsu", role: "Xạ Thủ" },
+      { id: 57, name: "Y'bneth", role: "Đỡ Đòn" },
+      { id: 58, name: "Amily", role: "Đấu Sĩ" },
+      { id: 59, name: "Annette", role: "Trợ Thủ" },
+      { id: 60, name: "Baldum", role: "Đỡ Đòn" },
+      { id: 61, name: "Roxie", role: "Đỡ Đòn" },
+      { id: 62, name: "Marja", role: "Pháp Sư" },
+      { id: 63, name: "Rourke", role: "Đấu Sĩ" },
+      { id: 64, name: "Arum", role: "Trợ Thủ" },
+      { id: 65, name: "Wisp", role: "Xạ Thủ" },
+      { id: 66, name: "The Flash", role: "Pháp Sư" },
+      { id: 67, name: "Max", role: "Đấu Sĩ" },
+      { id: 68, name: "Liliana", role: "Pháp Sư" },
+      { id: 69, name: "Tulen", role: "Pháp Sư" },
+      { id: 70, name: "Omen", role: "Đấu Sĩ" },
+      { id: 71, name: "Lindis", role: "Xạ Thủ" },
+      { id: 72, name: "TeeMee", role: "Trợ Thủ" },
+      { id: 73, name: "Moren", role: "Xạ Thủ" },
+      { id: 74, name: "Kil'Groth", role: "Đấu Sĩ" },
+      { id: 75, name: "Xeniel", role: "Đỡ Đòn" },
+      { id: 76, name: "Wonder Woman", role: "Đấu Sĩ" },
+      { id: 77, name: "Superman", role: "Đấu Sĩ" },
+      { id: 78, name: "Tel'Annas", role: "Xạ Thủ" },
+      { id: 79, name: "Astrid", role: "Đấu Sĩ" },
+      { id: 80, name: "Ryoma", role: "Đấu Sĩ" },
+      { id: 81, name: "Stuart (The Joker)", role: "Xạ Thủ" },
+      { id: 82, name: "Arduin", role: "Đỡ Đòn" },
+      { id: 83, name: "Zill", role: "Sát Thủ" },
+      { id: 84, name: "Murad", role: "Sát Thủ" },
+      { id: 85, name: "Ignis", role: "Pháp Sư" },
+      { id: 86, name: "Zuka", role: "Đấu Sĩ" },
+      { id: 87, name: "Airi", role: "Sát Thủ" },
+      { id: 88, name: "Kaine (Batman)", role: "Sát Thủ" },
+      { id: 89, name: "Lauriel", role: "Pháp Sư" },
+      { id: 90, name: "Raz", role: "Pháp Sư" },
+      { id: 91, name: "Skud", role: "Đấu Sĩ" },
+      { id: 92, name: "Preyta", role: "Pháp Sư" },
+      { id: 93, name: "Ilumia", role: "Pháp Sư" },
+      { id: 94, name: "Slimz", role: "Xạ Thủ" },
+      { id: 95, name: "Arthur", role: "Đấu Sĩ" },
+      { id: 96, name: "Kriknak", role: "Sát Thủ" },
+      { id: 97, name: "Ngộ Không", role: "Sát Thủ" },
+      { id: 98, name: "Maloch", role: "Đấu Sĩ" },
+      { id: 99, name: "Helen (Payna)", role: "Trợ Thủ" },
+      { id: 100, name: "Jinna", role: "Pháp Sư" },
+      { id: 101, name: "Cresht", role: "Đỡ Đòn" },
+      { id: 102, name: "Natalya", role: "Pháp Sư" },
+      { id: 103, name: "Lumburr", role: "Đỡ Đòn" },
+      { id: 104, name: "Fennik", role: "Xạ Thủ" },
+      { id: 105, name: "Aleister", role: "Pháp Sư" },
+      { id: 106, name: "Grakk", role: "Đỡ Đòn" },
+      { id: 107, name: "Nakroth", role: "Sát Thủ" },
+      { id: 108, name: "Taara", role: "Đỡ Đòn" },
+      { id: 109, name: "Toro", role: "Đỡ Đòn" },
+      { id: 110, name: "Yorn", role: "Xạ Thủ" },
+      { id: 111, name: "Gildur", role: "Đỡ Đòn" },
+      { id: 112, name: "Alice", role: "Trợ Thủ" },
+      { id: 113, name: "Azzen'Ka", role: "Pháp Sư" },
+      { id: 114, name: "Ormarr", role: "Đấu Sĩ" },
+      { id: 115, name: "Butterfly", role: "Sát Thủ" },
+      { id: 116, name: "Violet", role: "Xạ Thủ" },
+      { id: 117, name: "Chaugnar", role: "Đỡ Đòn" },
+      { id: 118, name: "Điêu Thuyền", role: "Pháp Sư" },
+      { id: 119, name: "Zephys", role: "Đấu Sĩ" },
+      { id: 120, name: "Kahlii", role: "Pháp Sư" },
+      { id: 121, name: "Omega", role: "Đỡ Đòn" },
+      { id: 122, name: "Triệu Vân", role: "Sát Thủ" },
+      { id: 123, name: "Mganga", role: "Pháp Sư" },
+      { id: 124, name: "Krixi", role: "Pháp Sư" },
+      { id: 125, name: "Mina", role: "Đỡ Đòn" },
+      { id: 126, name: "Lữ Bố", role: "Đấu Sĩ" },
+      { id: 127, name: "Veera", role: "Pháp Sư" },
+      { id: 128, name: "Thane", role: "Đỡ Đòn" },
+      { id: 129, name: "Valhein", role: "Xạ Thủ" }
     ];
 
     // 2. STATE QUẢN LÝ ỨNG DỤNG
     const state = {
-      // Set chứa các ID tướng đang được tích chọn (mặc định chọn đủ 128 tướng)
+      // Set chứa các ID tướng đang được tích chọn (mặc định chọn đủ 129 tướng)
       activeHeroIds: new Set(HERO_LIST.map(h => h.id)),
       currentRoleFilter: "ALL",
       searchQuery: "",
@@ -1442,7 +1443,7 @@
         return matchesRole && matchesSearch;
       });
 
-      document.getElementById("visible-count-label").textContent = `Hiển thị ${filtered.length} / 128 tướng`;
+      document.getElementById("visible-count-label").textContent = `Hiển thị ${filtered.length} / ${HERO_LIST.length} tướng`;
 
       if (filtered.length === 0) {
         container.innerHTML = `
@@ -1493,8 +1494,8 @@
 
     function updateFilterBadges() {
       const activeCount = state.activeHeroIds.size;
-      document.getElementById("hud-active-count").innerHTML = `${activeCount} <span class="text-xs text-gray-400 font-normal">/ 128</span>`;
-      document.getElementById("filter-selected-badge").textContent = `${activeCount}/128 TƯỚNG`;
+      document.getElementById("hud-active-count").innerHTML = `${activeCount} <span class="text-xs text-gray-400 font-normal">/ ${HERO_LIST.length}</span>`;
+      document.getElementById("filter-selected-badge").textContent = `${activeCount}/${HERO_LIST.length} TƯỚNG`;
       document.getElementById("wheel-center-number").textContent = `${activeCount} HERO`;
     }
 
@@ -1504,7 +1505,7 @@
       updateFilterBadges();
       renderHeroesCheckboxList();
       drawWheel();
-      showToast("ĐÃ CHỌN TẤT CẢ 128 TƯỚNG", "success");
+      showToast(`ĐÃ CHỌN TẤT CẢ ${HERO_LIST.length} TƯỚNG`, "success");
     }
 
     function deselectAllHeroes() {
