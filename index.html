@@ -1,0 +1,1767 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vòng Quay Tướng Liên Quân Mobile Ngẫu Nhiên Tuyệt Đối</title>
+  <meta name="description" content="Vòng quay tướng Liên Quân Mobile ngẫu nhiên tuyệt đối sử dụng thuật toán Random.org (Atmospheric Noise) và Web Crypto Fallback với phong cách Cyberpunk Sci-Fi HUD hiện đại." />
+  <meta property="og:title" content="Vòng Quay Tướng Liên Quân Mobile Ngẫu Nhiên Tuyệt Đối" />
+  <meta property="og:description" content="Vòng quay tướng Liên Quân Mobile ngẫu nhiên tuyệt đối sử dụng thuật toán Random.org và Web Crypto Fallback." />
+  <meta property="og:type" content="website" />
+
+  <!-- Google Fonts: Orbitron & Rajdhani -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome 6.5.1 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Tailwind CSS CDN with custom Sci-Fi HUD configuration -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            neon: {
+              green: '#00FF66',
+              emerald: '#00FF88',
+              cyan: '#00E5FF',
+              pink: '#FF007F',
+              yellow: '#FFE600',
+              red: '#FF2E54',
+              dim: '#00471b'
+            },
+            cyber: {
+              bg: '#0A0E17',
+              dark: '#121824',
+              surface: '#161F30',
+              border: '#1F2E47',
+              lightBorder: '#2E4466'
+            }
+          },
+          fontFamily: {
+            tech: ['Orbitron', 'sans-serif'],
+            body: ['Rajdhani', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <!-- Firebase v9 Compat CDN for zero-build direct connectivity -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <!-- Cyberpunk / Sci-Fi HUD Custom Neon Stylesheet -->
+  <style>
+    :root {
+      --neon-green: #00FF66;
+      --neon-emerald: #00FF88;
+      --neon-cyan: #00E5FF;
+      --neon-pink: #FF007F;
+      --cyber-bg: #0A0E17;
+      --cyber-dark: #121824;
+      --cyber-surface: #161F30;
+      --cyber-border: #1F2E47;
+    }
+
+    body {
+      background-color: var(--cyber-bg);
+      color: #E2E8F0;
+      font-family: 'Rajdhani', sans-serif;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* Ambient Tech Grid Background */
+    .cyber-grid-bg {
+      background-size: 40px 40px;
+      background-image: 
+        linear-gradient(to right, rgba(0, 255, 102, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 255, 102, 0.04) 1px, transparent 1px);
+    }
+
+    /* Scanline Overlay */
+    .scanline-overlay {
+      background: linear-gradient(
+        rgba(18, 24, 36, 0) 50%, 
+        rgba(0, 0, 0, 0.25) 50%
+      ), linear-gradient(
+        90deg,
+        rgba(0, 255, 102, 0.02),
+        rgba(0, 229, 255, 0.01),
+        rgba(0, 255, 102, 0.02)
+      );
+      background-size: 100% 3px, 6px 100%;
+      pointer-events: none;
+    }
+
+    /* Cut corners (Chamfered Sci-Fi HUD shapes) */
+    .clip-chamfer {
+      clip-path: polygon(
+        12px 0%, 
+        calc(100% - 12px) 0%, 
+        100% 12px, 
+        100% calc(100% - 12px), 
+        calc(100% - 12px) 100%, 
+        12px 100%, 
+        0% calc(100% - 12px), 
+        0% 12px
+      );
+    }
+
+    .clip-chamfer-lg {
+      clip-path: polygon(
+        20px 0%, 
+        calc(100% - 20px) 0%, 
+        100% 20px, 
+        100% calc(100% - 20px), 
+        calc(100% - 20px) 100%, 
+        20px 100%, 
+        0% calc(100% - 20px), 
+        0% 20px
+      );
+    }
+
+    .clip-corner-diagonal {
+      clip-path: polygon(
+        0 0, 
+        calc(100% - 16px) 0, 
+        100% 16px, 
+        100% 100%, 
+        16px 100%, 
+        0 calc(100% - 16px)
+      );
+    }
+
+    /* Glowing Neon effects */
+    .neon-glow-green {
+      text-shadow: 0 0 8px rgba(0, 255, 102, 0.8), 0 0 20px rgba(0, 255, 102, 0.4);
+    }
+
+    .neon-glow-cyan {
+      text-shadow: 0 0 8px rgba(0, 229, 255, 0.8), 0 0 20px rgba(0, 229, 255, 0.4);
+    }
+
+    .neon-glow-pink {
+      text-shadow: 0 0 8px rgba(255, 0, 127, 0.8), 0 0 20px rgba(255, 0, 127, 0.4);
+    }
+
+    .box-glow-green {
+      box-shadow: 0 0 15px rgba(0, 255, 102, 0.3), inset 0 0 15px rgba(0, 255, 102, 0.1);
+    }
+
+    .box-glow-cyan {
+      box-shadow: 0 0 15px rgba(0, 229, 255, 0.3), inset 0 0 15px rgba(0, 229, 255, 0.1);
+    }
+
+    .border-glow-green {
+      border-color: #00FF66;
+      box-shadow: 0 0 12px rgba(0, 255, 102, 0.4);
+    }
+
+    /* Cyber Card HUD corner brackets */
+    .hud-bracket {
+      position: relative;
+    }
+    .hud-bracket::before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: -1px;
+      width: 10px;
+      height: 10px;
+      border-top: 2px solid #00FF66;
+      border-left: 2px solid #00FF66;
+      pointer-events: none;
+    }
+    .hud-bracket::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      right: -1px;
+      width: 10px;
+      height: 10px;
+      border-bottom: 2px solid #00FF66;
+      border-right: 2px solid #00FF66;
+      pointer-events: none;
+    }
+
+    /* Pulse animations */
+    @keyframes neon-pulse {
+      0%, 100% {
+        box-shadow: 0 0 15px rgba(0, 255, 102, 0.4), 0 0 30px rgba(0, 255, 102, 0.2);
+        transform: scale(1);
+      }
+      50% {
+        box-shadow: 0 0 25px rgba(0, 255, 102, 0.8), 0 0 50px rgba(0, 255, 102, 0.4);
+        transform: scale(1.02);
+      }
+    }
+
+    .animate-neon-pulse {
+      animation: neon-pulse 2s infinite ease-in-out;
+    }
+
+    @keyframes radar-sweep {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .animate-radar {
+      animation: radar-sweep 8s linear infinite;
+    }
+
+    /* Custom scrollbar for hero list and history */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0A0E17;
+      border: 1px solid #1F2E47;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #00FF66;
+      border-radius: 2px;
+      box-shadow: 0 0 6px rgba(0, 255, 102, 0.6);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #00E5FF;
+    }
+
+    /* Modal Backdrop Blur */
+    .modal-backdrop {
+      backdrop-filter: blur(8px);
+      background-color: rgba(10, 14, 23, 0.85);
+    }
+
+    /* Checkbox Cyberpunk Styling */
+    .cyber-checkbox:checked {
+      background-color: #00FF66;
+      border-color: #00FF66;
+      box-shadow: 0 0 8px #00FF66;
+    }
+  </style>
+</head>
+
+<body class="cyber-grid-bg relative selection:bg-neon-green selection:text-black">
+  <!-- Scanline Layer -->
+  <div class="scanline-overlay fixed inset-0 z-50 pointer-events-none"></div>
+
+  <!-- MAIN HUD WRAPPER -->
+  <div class="min-h-screen flex flex-col justify-between relative z-10">
+
+    <!-- TOP HUD HEADER -->
+    <header class="border-b border-cyber-border bg-cyber-dark/90 backdrop-blur-md sticky top-0 z-40">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
+        
+        <!-- Left: Logo & Cyber Title -->
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 clip-chamfer bg-neon-green/10 border border-neon-green flex items-center justify-center text-neon-green box-glow-green">
+            <i class="fa-solid fa-atom text-xl animate-spin" style="animation-duration: 9s;"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="text-xs font-tech px-2 py-0.5 rounded bg-neon-green/20 text-neon-green border border-neon-green/40 tracking-wider">AOV QUANTUM RNG</span>
+              <span id="entropy-source-pill" class="text-xs font-tech px-2 py-0.5 rounded bg-cyber-cyan/20 text-cyber-cyan border border-cyber-cyan/40 flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-cyber-cyan animate-ping"></span>
+                RANDOM.ORG READY
+              </span>
+            </div>
+            <h1 class="text-base sm:text-lg lg:text-xl font-tech font-bold text-white tracking-wider flex items-center gap-2">
+              VÒNG QUAY TƯỚNG LIÊN QUÂN
+              <span class="text-neon-green text-sm hidden sm:inline">NGẪU NHIÊN TUYỆT ĐỐI</span>
+            </h1>
+          </div>
+        </div>
+
+        <!-- Right: Telemetry, Audio, Firebase & Actions -->
+        <div class="flex items-center space-x-2 sm:space-x-3">
+          <!-- Audio SFX Toggle -->
+          <button id="btn-sound-toggle" title="Bật/Tắt Âm thanh Cyber HUD" class="px-3 py-1.5 clip-chamfer bg-cyber-surface border border-cyber-border hover:border-neon-cyan text-gray-300 hover:text-neon-cyan transition-all text-xs font-tech flex items-center gap-1.5">
+            <i id="sound-icon" class="fa-solid fa-volume-high text-neon-green"></i>
+            <span class="hidden sm:inline">SFX: ON</span>
+          </button>
+
+          <!-- Firebase Cloud Sync Status/Settings -->
+          <button id="btn-open-firebase" title="Cấu hình kết nối Firebase Firestore" class="px-3 py-1.5 clip-chamfer bg-cyber-surface border border-cyber-border hover:border-neon-green text-gray-300 hover:text-neon-green transition-all text-xs font-tech flex items-center gap-1.5">
+            <i class="fa-solid fa-fire text-orange-400"></i>
+            <span id="firebase-status-label" class="hidden sm:inline">FIREBASE: LOCAL</span>
+          </button>
+
+          <!-- Export Single File Button (For direct Vercel deployment) -->
+          <button id="btn-export-html" title="Tải xuống file index.html độc lập (Sẵn sàng kéo thả Vercel)" class="px-3 py-1.5 clip-chamfer bg-neon-green/10 border border-neon-green text-neon-green hover:bg-neon-green hover:text-black transition-all text-xs font-tech font-bold flex items-center gap-1.5">
+            <i class="fa-solid fa-download"></i>
+            <span class="hidden md:inline">TẢI INDEX.HTML</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 w-full flex-grow">
+      
+      <!-- Top HUD Telemetry Bar -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        <div class="clip-chamfer bg-cyber-dark border border-cyber-border p-3 hud-bracket">
+          <div class="text-[11px] text-gray-400 font-tech uppercase tracking-widest flex items-center justify-between">
+            <span>TỔNG TƯỚNG LIÊN QUÂN</span>
+            <i class="fa-solid fa-shield-halved text-neon-green"></i>
+          </div>
+          <div class="text-xl sm:text-2xl font-tech font-bold text-white mt-1">128 <span class="text-xs text-neon-green font-normal">TƯỚNG</span></div>
+        </div>
+
+        <div class="clip-chamfer bg-cyber-dark border border-cyber-border p-3 hud-bracket">
+          <div class="text-[11px] text-gray-400 font-tech uppercase tracking-widest flex items-center justify-between">
+            <span>ĐANG KÍCH HOẠT QUAY</span>
+            <i class="fa-solid fa-filter text-cyber-cyan"></i>
+          </div>
+          <div class="text-xl sm:text-2xl font-tech font-bold text-cyber-cyan mt-1" id="hud-active-count">128 <span class="text-xs text-gray-400 font-normal">/ 128</span></div>
+        </div>
+
+        <div class="clip-chamfer bg-cyber-dark border border-cyber-border p-3 hud-bracket">
+          <div class="text-[11px] text-gray-400 font-tech uppercase tracking-widest flex items-center justify-between">
+            <span>THUẬT TOÁN ENTROPY</span>
+            <i class="fa-solid fa-satellite-dish text-neon-pink"></i>
+          </div>
+          <div class="text-sm sm:text-base font-tech font-bold text-neon-pink mt-1 truncate" id="hud-algorithm-badge">
+            RANDOM.ORG (QUÂN SỰ)
+          </div>
+        </div>
+
+        <div class="clip-chamfer bg-cyber-dark border border-cyber-border p-3 hud-bracket">
+          <div class="text-[11px] text-gray-400 font-tech uppercase tracking-widest flex items-center justify-between">
+            <span>ĐỘ TRỄ PHẢN HỒI</span>
+            <i class="fa-solid fa-bolt text-yellow-400"></i>
+          </div>
+          <div class="text-xl sm:text-2xl font-tech font-bold text-yellow-400 mt-1" id="hud-latency">-- <span class="text-xs text-gray-400 font-normal">ms</span></div>
+        </div>
+      </div>
+
+      <!-- MAIN LAYOUT: WHEEL / VISUALIZER (LEFT) + FILTER & HISTORY (RIGHT) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT COLUMN: ROULETTE WHEEL & DECRYPTOR HUD (7 COLS) -->
+        <div class="lg:col-span-7 flex flex-col items-center">
+          
+          <div class="w-full clip-chamfer-lg bg-cyber-dark border-2 border-cyber-border p-4 sm:p-6 hud-bracket relative overflow-hidden flex flex-col items-center">
+            
+            <!-- Atmospheric Radar Scan Overlay Background -->
+            <div class="absolute -top-32 -left-32 w-80 h-80 bg-neon-green/5 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-32 -right-32 w-80 h-80 bg-cyber-cyan/5 rounded-full blur-3xl pointer-events-none"></div>
+
+            <!-- Header of Spin Module -->
+            <div class="w-full flex items-center justify-between border-b border-cyber-border pb-3 mb-4">
+              <div class="flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 bg-neon-green rounded-full animate-ping"></span>
+                <h2 class="font-tech text-sm sm:text-base font-bold tracking-wider text-white">CYBER ROULETTE HUD</h2>
+              </div>
+              <div class="text-xs font-tech text-gray-400 flex items-center gap-2">
+                <span>RADAR SENSORS: <span class="text-neon-green">ACTIVE</span></span>
+              </div>
+            </div>
+
+            <!-- Matrix Hero Decryptor Strip (Real-time cyber roll display) -->
+            <div class="w-full mb-4 p-3 bg-cyber-surface/90 border border-cyber-border clip-chamfer flex flex-col sm:flex-row items-center justify-between gap-2">
+              <div class="flex items-center space-x-3">
+                <span class="text-xs font-tech text-gray-400 tracking-wider">TARGET:</span>
+                <span id="decryptor-id" class="text-xs font-tech font-bold px-2 py-0.5 bg-neon-green/20 text-neon-green border border-neon-green/40">ID #---</span>
+                <span id="decryptor-name" class="text-base sm:text-lg font-tech font-bold text-white tracking-widest neon-glow-green">SẴN SÀNG QUAY</span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <span id="decryptor-role" class="text-xs font-tech px-2 py-0.5 bg-cyber-dark border border-cyber-border text-gray-300">TẤT CẢ VỊ TRÍ</span>
+              </div>
+            </div>
+
+            <!-- CANVAS WHEEL CONTAINER -->
+            <div class="relative w-full max-w-[420px] aspect-square flex items-center justify-center my-2">
+              
+              <!-- Outer Glowing Metallic Tech Ring -->
+              <div class="absolute inset-0 rounded-full border border-neon-green/30 box-glow-green animate-pulse" style="animation-duration: 4s;"></div>
+              
+              <!-- Outer Radar Marks -->
+              <div class="absolute -inset-2 rounded-full border border-dashed border-cyber-cyan/20 animate-radar pointer-events-none"></div>
+
+              <!-- Top Wheel Pointer (Sci-Fi Laser Pointer) -->
+              <div class="absolute -top-3 z-30 flex flex-col items-center pointer-events-none">
+                <div class="w-0 h-0 border-l-[14px] border-l-transparent border-r-[14px] border-r-transparent border-t-[22px] border-t-neon-green drop-shadow-[0_0_12px_#00FF66]"></div>
+                <div class="w-1.5 h-6 bg-neon-green/80 blur-[1px] -mt-1 shadow-[0_0_8px_#00FF66]"></div>
+              </div>
+
+              <!-- HTML5 Interactive Wheel Canvas -->
+              <canvas id="wheel-canvas" width="600" height="600" class="w-full h-full cursor-pointer rounded-full transition-transform"></canvas>
+
+              <!-- Center Glowing Reactor Core (Hub) -->
+              <div id="wheel-center-hub" class="absolute z-20 w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-cyber-dark border-2 border-neon-green box-glow-green flex flex-col items-center justify-center p-2 text-center select-none pointer-events-none">
+                <div class="w-2.5 h-2.5 rounded-full bg-neon-green animate-ping mb-1"></div>
+                <span class="text-[10px] font-tech text-gray-400 uppercase tracking-tighter">AOV CORE</span>
+                <span id="wheel-center-number" class="text-xs sm:text-sm font-tech font-black text-white">128 HERO</span>
+              </div>
+            </div>
+
+            <!-- Controls & Big Neon Action Button -->
+            <div class="w-full mt-5 flex flex-col items-center gap-3">
+              
+              <button id="btn-spin" class="w-full sm:w-4/5 py-4 px-8 clip-chamfer-lg bg-neon-green text-black font-tech font-black text-lg sm:text-xl tracking-widest hover:bg-neon-emerald transition-all duration-200 transform active:scale-95 animate-neon-pulse flex items-center justify-center space-x-3 border-2 border-neon-green cursor-pointer">
+                <i class="fa-solid fa-atom text-xl animate-spin" style="animation-duration: 3s;"></i>
+                <span id="btn-spin-text">QUAY TƯỚNG (RANDOM.ORG)</span>
+                <i class="fa-solid fa-angles-right"></i>
+              </button>
+
+              <div class="flex items-center justify-between w-full text-xs font-tech text-gray-400 px-2 mt-1">
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-neon-green"></span>
+                  <span>NGẪU NHIÊN VẬT LÝ THỰC (ATMOSPHERIC NOISE)</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <i class="fa-solid fa-shield-virus text-cyber-cyan"></i>
+                  <span>FALLBACK: CRYPTO TRNG</span>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Entropy & API Verification Info Box -->
+          <div class="w-full mt-4 clip-chamfer bg-cyber-dark border border-cyber-border p-4 text-xs font-tech text-gray-400">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-white font-bold flex items-center gap-1.5">
+                <i class="fa-solid fa-network-wired text-cyber-cyan"></i>
+                TIÊU CHUẨN XÁC THỰC NGẪU NHIÊN
+              </span>
+              <span id="api-status-badge" class="text-neon-green">RANDOM.ORG API OK</span>
+            </div>
+            <p class="leading-relaxed font-body text-sm text-gray-300">
+              Mỗi lượt quay kết nối trực tiếp đến máy chủ <strong>Random.org</strong> thông qua giao thức HTTPS để lấy hạt nhân ngẫu nhiên từ <em>nhiễu khí quyển (Atmospheric Noise)</em>. Nếu có sự cố đường truyền hoặc vượt hạn ngạch (Rate Limit), hệ thống lập tức kích hoạt bộ sinh số ngẫu nhiên mật mã <strong>window.crypto.getRandomValues()</strong> của phần cứng.
+            </p>
+          </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: HERO FILTER & SPIN HISTORY (5 COLS) -->
+        <div class="lg:col-span-5 flex flex-col gap-6">
+
+          <!-- FILTER TABS & SEARCH CONTAINER -->
+          <div class="clip-chamfer-lg bg-cyber-dark border border-cyber-border p-4 sm:p-5 hud-bracket flex flex-col">
+            
+            <!-- Module Title -->
+            <div class="flex items-center justify-between border-b border-cyber-border pb-3 mb-3">
+              <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-users-gear text-neon-green"></i>
+                <h3 class="font-tech text-sm sm:text-base font-bold tracking-wider text-white">BỘ LỌC DANH SÁCH TƯỚNG</h3>
+              </div>
+              <span id="filter-selected-badge" class="text-xs font-tech px-2 py-0.5 bg-neon-green/10 text-neon-green border border-neon-green/30">
+                128/128 TƯỚNG
+              </span>
+            </div>
+
+            <!-- Quick Action Buttons: Select All / Deselect All -->
+            <div class="grid grid-cols-2 gap-2 mb-3">
+              <button id="btn-select-all" class="py-2 px-3 clip-chamfer bg-cyber-surface border border-cyber-border hover:border-neon-green text-gray-200 hover:text-neon-green font-tech text-xs tracking-wider transition-all flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-square-check text-neon-green"></i>
+                CHỌN TẤT CẢ (128)
+              </button>
+              <button id="btn-deselect-all" class="py-2 px-3 clip-chamfer bg-cyber-surface border border-cyber-border hover:border-neon-pink text-gray-200 hover:text-neon-pink font-tech text-xs tracking-wider transition-all flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-square-xmark text-neon-pink"></i>
+                BỎ CHỌN TẤT CẢ
+              </button>
+            </div>
+
+            <!-- Search input -->
+            <div class="relative mb-3">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+              <input 
+                type="text" 
+                id="hero-search-input" 
+                placeholder="Tìm tướng theo tên (VD: Valhein, Nakroth, Florentino...)"
+                class="w-full bg-cyber-surface border border-cyber-border focus:border-neon-green focus:outline-none text-sm text-white px-8 py-2 clip-chamfer transition-colors font-body"
+              />
+              <button id="btn-clear-search" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-xs">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            <!-- Role Filter Pills (Đấu Sĩ, Pháp Sư, Xạ Thủ, Sát Thủ, Trợ Thủ, Đỡ Đòn) -->
+            <div class="flex flex-wrap gap-1.5 mb-3">
+              <button data-role="ALL" class="role-filter-btn active px-2.5 py-1 text-xs font-tech clip-chamfer bg-neon-green text-black font-bold border border-neon-green transition-all">TẤT CẢ</button>
+              <button data-role="Đấu Sĩ" class="role-filter-btn px-2.5 py-1 text-xs font-tech clip-chamfer bg-cyber-surface text-gray-300 border border-cyber-border hover:border-neon-cyan transition-all">ĐẤU SĨ</button>
+              <button data-role="Pháp Sư" class="role-filter-btn px-2.5 py-1 text-xs font-tech clip-chamfer bg-cyber-surface text-gray-300 border border-cyber-border hover:border-neon-cyan transition-all">PHÁP SƯ</button>
+              <button data-role="Xạ Thủ" class="role-filter-btn px-2.5 py-1 text-xs font-tech clip-chamfer bg-cyber-surface text-gray-300 border border-cyber-border hover:border-neon-cyan transition-all">XẠ THỦ</button>
+              <button data-role="Sát Thủ" class="role-filter-btn px-2.5 py-1 text-xs font-tech clip-chamfer bg-cyber-surface text-gray-300 border border-cyber-border hover:border-neon-cyan transition-all">SÁT THỦ</button>
+              <button data-role="Trợ Thủ" class="role-filter-btn px-2.5 py-1 text-xs font-tech clip-chamfer bg-cyber-surface text-gray-300 border border-cyber-border hover:border-neon-cyan transition-all">TRỢ THỦ</button>
+              <button data-role="Đỡ Đòn" class="role-filter-btn px-2.5 py-1 text-xs font-tech clip-chamfer bg-cyber-surface text-gray-300 border border-cyber-border hover:border-neon-cyan transition-all">ĐỠ ĐÒN</button>
+            </div>
+
+            <!-- Hero List Container (Scrollable 128 heroes with check/uncheck) -->
+            <div class="border border-cyber-border bg-cyber-surface/50 p-2 rounded max-h-[300px] overflow-y-auto" id="heroes-checkbox-list">
+              <!-- Dynamically generated hero list items -->
+            </div>
+
+            <div class="mt-2 text-[11px] font-tech text-gray-400 flex items-center justify-between">
+              <span>MẸO: Click trực tiếp vào tên tướng để Bật/Tắt</span>
+              <span id="visible-count-label" class="text-neon-cyan">Hiển thị 128 tướng</span>
+            </div>
+
+          </div>
+
+          <!-- SPIN HISTORY MODULE (Latest 10 spins) -->
+          <div class="clip-chamfer-lg bg-cyber-dark border border-cyber-border p-4 sm:p-5 hud-bracket flex flex-col">
+            
+            <div class="flex items-center justify-between border-b border-cyber-border pb-3 mb-3">
+              <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-clock-rotate-left text-cyber-cyan"></i>
+                <h3 class="font-tech text-sm sm:text-base font-bold tracking-wider text-white">LỊCH SỬ LƯỢT QUAY</h3>
+              </div>
+              <button id="btn-clear-history" class="text-xs font-tech text-gray-400 hover:text-neon-pink transition-colors flex items-center gap-1">
+                <i class="fa-solid fa-trash-can"></i>
+                XÓA LỊCH SỬ
+              </button>
+            </div>
+
+            <!-- History List container (Latest 10) -->
+            <div id="spin-history-list" class="flex flex-col gap-2 max-h-[260px] overflow-y-auto pr-1">
+              <!-- Populated by JavaScript -->
+              <div class="text-center py-6 text-gray-500 font-tech text-xs">
+                CHƯA CÓ LƯỢT QUAY NÀO ĐƯỢC GHI NHẬN
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- FOOTER HUD -->
+    <footer class="border-t border-cyber-border bg-cyber-dark/80 py-4 px-4 text-center text-xs font-tech text-gray-400">
+      <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+        <div class="flex items-center space-x-2">
+          <span class="w-2 h-2 rounded-full bg-neon-green"></span>
+          <span>LIÊN QUÂN MOBILE RANDOMIZER &bull; SYSTEM PROTOCOL v4.0</span>
+        </div>
+        <div>
+          NGUỒN THUẬT TOÁN: <a href="https://www.random.org" target="_blank" rel="noopener noreferrer" class="text-neon-cyan hover:underline">RANDOM.ORG</a> &bull; CSPRNG HARDWARE ENTROPY
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- WINNER RESULT MODAL (SCI-FI HOLOGRAPHIC POPUP) -->
+  <div id="modal-winner" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+    <div class="w-full max-w-md clip-chamfer-lg bg-cyber-dark border-2 border-neon-green box-glow-green p-6 relative hud-bracket transform transition-all duration-300 scale-95 opacity-0" id="modal-winner-content">
+      
+      <!-- Top Decorative Corner Marker -->
+      <div class="absolute top-2 right-3 text-neon-green/40 font-tech text-xs">ID // SYSTEM_SELECTED</div>
+
+      <!-- Close Button -->
+      <button id="btn-modal-close" class="absolute top-3 right-3 text-gray-400 hover:text-neon-pink text-lg p-2 transition-colors">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <!-- Hologram Visual Header -->
+      <div class="text-center mt-2 mb-4">
+        <div class="inline-block p-3 rounded-full bg-neon-green/10 border border-neon-green box-glow-green mb-2 text-neon-green text-3xl">
+          <i class="fa-solid fa-trophy"></i>
+        </div>
+        <div class="text-xs font-tech text-neon-green tracking-widest uppercase">KẾT QUẢ QUAY THÀNH CÔNG</div>
+        <h3 class="text-xs font-tech text-gray-400">ATMOSPHERIC RANDOM DETERMINATION</h3>
+      </div>
+
+      <!-- Winner Card HUD -->
+      <div class="clip-chamfer bg-cyber-surface border border-cyber-border p-4 my-4 text-center relative overflow-hidden">
+        <div class="absolute -right-8 -bottom-8 text-7xl text-neon-green/5 font-tech font-black pointer-events-none" id="modal-winner-bg-id">
+          #00
+        </div>
+        <div class="text-xs font-tech px-2.5 py-1 inline-block bg-cyber-dark border border-neon-green/50 text-neon-green rounded mb-2" id="modal-winner-id">
+          TƯỚNG LIÊN QUÂN #000
+        </div>
+        <div class="text-2xl sm:text-3xl font-tech font-black text-white tracking-widest neon-glow-green uppercase py-1" id="modal-winner-name">
+          TÊN TƯỚNG
+        </div>
+        <div class="mt-2 flex items-center justify-center gap-2">
+          <span id="modal-winner-role" class="text-xs font-tech px-3 py-1 bg-cyber-cyan/10 text-cyber-cyan border border-cyber-cyan/30 rounded">
+            VỊ TRÍ: ĐẤU SĨ
+          </span>
+        </div>
+      </div>
+
+      <!-- Verification Specs -->
+      <div class="space-y-1.5 text-xs font-tech text-gray-400 bg-cyber-surface/50 p-3 rounded border border-cyber-border mb-5">
+        <div class="flex justify-between">
+          <span>NGUỒN DỮ LIỆU:</span>
+          <span id="modal-winner-source" class="text-neon-green font-bold">RANDOM.ORG API</span>
+        </div>
+        <div class="flex justify-between">
+          <span>THỜI GIAN QUAY:</span>
+          <span id="modal-winner-time" class="text-gray-200">12:00:00 17/09/2026</span>
+        </div>
+        <div class="flex justify-between">
+          <span>TỔNG SỐ ỨNG VIÊN:</span>
+          <span id="modal-winner-candidates" class="text-cyber-cyan">128 Tướng</span>
+        </div>
+      </div>
+
+      <!-- Modal Action Buttons -->
+      <div class="grid grid-cols-2 gap-3">
+        <button id="btn-modal-copy" class="py-3 px-4 clip-chamfer bg-cyber-surface border border-cyber-border hover:border-neon-cyan text-white font-tech text-xs tracking-wider transition-all flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-copy text-cyber-cyan"></i>
+          SAO CHÉP TÊN
+        </button>
+        <button id="btn-modal-spin-again" class="py-3 px-4 clip-chamfer bg-neon-green text-black font-tech font-bold text-xs tracking-wider hover:bg-neon-emerald transition-all flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-rotate-right"></i>
+          QUAY TIẾP
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FIREBASE CONFIG MODAL -->
+  <div id="modal-firebase" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+    <div class="w-full max-w-lg clip-chamfer-lg bg-cyber-dark border-2 border-orange-500/80 p-6 relative hud-bracket">
+      
+      <div class="flex items-center justify-between border-b border-cyber-border pb-3 mb-4">
+        <div class="flex items-center space-x-2 text-orange-400">
+          <i class="fa-solid fa-fire text-xl"></i>
+          <h3 class="font-tech text-base font-bold tracking-wider text-white">CẤU HÌNH FIREBASE FIRESTORE (v9+)</h3>
+        </div>
+        <button id="btn-firebase-close" class="text-gray-400 hover:text-white text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <p class="text-xs text-gray-300 font-body mb-4 leading-relaxed">
+        Tự động đồng bộ lịch sử quay lên Cloud Firestore Collection <strong>`spin_history`</strong>. Dữ liệu được lưu trong trình duyệt của bạn (LocalStorage) và không truyền tới bất kỳ bên thứ ba nào.
+      </p>
+
+      <!-- Toggle Enable/Disable -->
+      <div class="flex items-center justify-between p-3 bg-cyber-surface border border-cyber-border clip-chamfer mb-4">
+        <span class="text-xs font-tech text-white">KÍCH HOẠT LƯU TRÊN FIREBASE</span>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" id="firebase-enable-toggle" class="sr-only peer">
+          <div class="w-11 h-6 bg-cyber-dark peer-focus:outline-none border border-cyber-border rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+        </label>
+      </div>
+
+      <!-- JSON Config Textarea or Individual inputs -->
+      <div class="space-y-3 mb-5">
+        <div>
+          <label class="block text-xs font-tech text-gray-300 mb-1">DÁN MÃ CẤU HÌNH FIREBASE CONFIG (JSON)</label>
+          <textarea 
+            id="firebase-config-json" 
+            rows="5" 
+            placeholder='{&#10;  "apiKey": "AIzaSy...",&#10;  "authDomain": "your-app.firebaseapp.com",&#10;  "projectId": "your-app",&#10;  "storageBucket": "your-app.appspot.com",&#10;  "messagingSenderId": "...",&#10;  "appId": "..."&#10;}'
+            class="w-full bg-cyber-surface border border-cyber-border focus:border-orange-500 focus:outline-none text-xs text-white p-2.5 rounded font-mono"
+          ></textarea>
+        </div>
+        <div class="text-[11px] font-tech text-gray-400">
+          * Để trống nếu chỉ muốn sử dụng bộ nhớ cục bộ (Local Storage).
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="grid grid-cols-2 gap-3">
+        <button id="btn-firebase-test" class="py-2.5 px-4 clip-chamfer bg-cyber-surface border border-cyber-border hover:border-orange-500 text-white font-tech text-xs tracking-wider transition-all">
+          <i class="fa-solid fa-vial mr-1 text-orange-400"></i>
+          KIỂM TRA KẾT NỐI
+        </button>
+        <button id="btn-firebase-save" class="py-2.5 px-4 clip-chamfer bg-orange-500 text-black font-tech font-bold text-xs tracking-wider hover:bg-orange-400 transition-all">
+          LƯU CẤU HÌNH
+        </button>
+      </div>
+
+      <div id="firebase-feedback" class="mt-3 text-xs font-tech text-center hidden"></div>
+
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION HUD -->
+  <div id="toast-hud" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="clip-chamfer bg-cyber-dark border border-neon-green box-glow-green py-2.5 px-4 flex items-center space-x-2 text-xs font-tech text-white">
+      <i id="toast-icon" class="fa-solid fa-circle-check text-neon-green"></i>
+      <span id="toast-message">THÔNG BÁO HỆ THỐNG</span>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT APPLICATION CORE (LOGIC NGẪU NHIÊN & ĐỒ HỌA SCI-FI) -->
+  <!-- ========================================================================= -->
+  <script>
+    /**
+     * VÒNG QUAY TƯỚNG LIÊN QUÂN MOBILE NGẪU NHIÊN TUYỆT ĐỐI
+     * Toàn bộ mã nguồn hoàn chỉnh chuẩn Vercel Single-Page Deployment
+     */
+
+    // 1. DANH SÁCH 128 TƯỚNG LIÊN QUAN MOBILE THEO ĐÚNG THỨ TỰ VÀ ID YÊU CẦU
+    const HERO_LIST = [
+      { id: 1, name: "Tamyn", role: "Trợ Thủ" },
+      { id: 2, name: "Flowborn (xạ thủ)", role: "Xạ Thủ" },
+      { id: 3, name: "Flowborn (pháp sư)", role: "Pháp Sư" },
+      { id: 4, name: "Dyadia", role: "Trợ Thủ" },
+      { id: 5, name: "Edras", role: "Đấu Sĩ" },
+      { id: 6, name: "Goverra", role: "Trợ Thủ" },
+      { id: 7, name: "Heino", role: "Pháp Sư" },
+      { id: 8, name: "Billow", role: "Trợ Thủ" },
+      { id: 9, name: "Bolt Baron", role: "Đấu Sĩ" },
+      { id: 10, name: "Biron", role: "Đấu Sĩ" },
+      { id: 11, name: "Dolia", role: "Trợ Thủ" },
+      { id: 12, name: "Charlotte", role: "Đấu Sĩ" },
+      { id: 13, name: "Tachi", role: "Đấu Sĩ" },
+      { id: 14, name: "Dirak", role: "Pháp Sư" },
+      { id: 15, name: "Qi", role: "Đấu Sĩ" },
+      { id: 16, name: "Erin", role: "Xạ Thủ" },
+      { id: 17, name: "Ming", role: "Trợ Thủ" },
+      { id: 18, name: "Bijan", role: "Đấu Sĩ" },
+      { id: 19, name: "Bonnie", role: "Pháp Sư" },
+      { id: 20, name: "Teeri", role: "Xạ Thủ" },
+      { id: 21, name: "Yue", role: "Pháp Sư" },
+      { id: 22, name: "Yan", role: "Sát Thủ" },
+      { id: 23, name: "Aya", role: "Trợ Thủ" },
+      { id: 24, name: "Aoi", role: "Sát Thủ" },
+      { id: 25, name: "Bright", role: "Sát Thủ" },
+      { id: 26, name: "Lorion", role: "Pháp Sư" },
+      { id: 27, name: "Dextra", role: "Đấu Sĩ" },
+      { id: 28, name: "Sinestrea", role: "Sát Thủ" },
+      { id: 29, name: "Thorne", role: "Xạ Thủ" },
+      { id: 30, name: "Allain", role: "Đấu Sĩ" },
+      { id: 31, name: "Zata", role: "Pháp Sư" },
+      { id: 32, name: "Rouie", role: "Trợ Thủ" },
+      { id: 33, name: "Laville", role: "Xạ Thủ" },
+      { id: 34, name: "Paine", role: "Sát Thủ" },
+      { id: 35, name: "Ata", role: "Đỡ Đòn" },
+      { id: 36, name: "Keera", role: "Sát Thủ" },
+      { id: 37, name: "Ishar", role: "Pháp Sư" },
+      { id: 38, name: "Eland'orr", role: "Xạ Thủ" },
+      { id: 39, name: "Krizzix", role: "Trợ Thủ" },
+      { id: 40, name: "Volkath", role: "Đấu Sĩ" },
+      { id: 41, name: "Celica", role: "Xạ Thủ" },
+      { id: 42, name: "Zip", role: "Trợ Thủ" },
+      { id: 43, name: "Enzo", role: "Sát Thủ" },
+      { id: 44, name: "Yena", role: "Đấu Sĩ" },
+      { id: 45, name: "Errol", role: "Đấu Sĩ" },
+      { id: 46, name: "Capheny", role: "Xạ Thủ" },
+      { id: 47, name: "Hayate", role: "Xạ Thủ" },
+      { id: 48, name: "D'Arcy", role: "Pháp Sư" },
+      { id: 49, name: "Veres", role: "Đấu Sĩ" },
+      { id: 50, name: "Florentino", role: "Đấu Sĩ" },
+      { id: 51, name: "Sephera", role: "Pháp Sư" },
+      { id: 52, name: "Quillen", role: "Sát Thủ" },
+      { id: 53, name: "Wiro", role: "Đỡ Đòn" },
+      { id: 54, name: "Richter", role: "Đấu Sĩ" },
+      { id: 55, name: "Elsu", role: "Xạ Thủ" },
+      { id: 56, name: "Y'bneth", role: "Đỡ Đòn" },
+      { id: 57, name: "Amily", role: "Đấu Sĩ" },
+      { id: 58, name: "Annette", role: "Trợ Thủ" },
+      { id: 59, name: "Baldum", role: "Đỡ Đòn" },
+      { id: 60, name: "Roxie", role: "Đỡ Đòn" },
+      { id: 61, name: "Marja", role: "Pháp Sư" },
+      { id: 62, name: "Rourke", role: "Đấu Sĩ" },
+      { id: 63, name: "Arum", role: "Trợ Thủ" },
+      { id: 64, name: "Wisp", role: "Xạ Thủ" },
+      { id: 65, name: "The Flash", role: "Pháp Sư" },
+      { id: 66, name: "Max", role: "Đấu Sĩ" },
+      { id: 67, name: "Liliana", role: "Pháp Sư" },
+      { id: 68, name: "Tulen", role: "Pháp Sư" },
+      { id: 69, name: "Omen", role: "Đấu Sĩ" },
+      { id: 70, name: "Lindis", role: "Xạ Thủ" },
+      { id: 71, name: "TeeMee", role: "Trợ Thủ" },
+      { id: 72, name: "Moren", role: "Xạ Thủ" },
+      { id: 73, name: "Kil'Groth", role: "Đấu Sĩ" },
+      { id: 74, name: "Xeniel", role: "Đỡ Đòn" },
+      { id: 75, name: "Wonder Woman", role: "Đấu Sĩ" },
+      { id: 76, name: "Superman", role: "Đấu Sĩ" },
+      { id: 77, name: "Tel'Annas", role: "Xạ Thủ" },
+      { id: 78, name: "Astrid", role: "Đấu Sĩ" },
+      { id: 79, name: "Ryoma", role: "Đấu Sĩ" },
+      { id: 80, name: "Stuart (The Joker)", role: "Xạ Thủ" },
+      { id: 81, name: "Arduin", role: "Đỡ Đòn" },
+      { id: 82, name: "Zill", role: "Sát Thủ" },
+      { id: 83, name: "Murad", role: "Sát Thủ" },
+      { id: 84, name: "Ignis", role: "Pháp Sư" },
+      { id: 85, name: "Zuka", role: "Đấu Sĩ" },
+      { id: 86, name: "Airi", role: "Sát Thủ" },
+      { id: 87, name: "Kaine (Batman)", role: "Sát Thủ" },
+      { id: 88, name: "Lauriel", role: "Pháp Sư" },
+      { id: 89, name: "Raz", role: "Pháp Sư" },
+      { id: 90, name: "Skud", role: "Đấu Sĩ" },
+      { id: 91, name: "Preyta", role: "Pháp Sư" },
+      { id: 92, name: "Ilumia", role: "Pháp Sư" },
+      { id: 93, name: "Slimz", role: "Xạ Thủ" },
+      { id: 94, name: "Arthur", role: "Đấu Sĩ" },
+      { id: 95, name: "Kriknak", role: "Sát Thủ" },
+      { id: 96, name: "Ngộ Không", role: "Sát Thủ" },
+      { id: 97, name: "Maloch", role: "Đấu Sĩ" },
+      { id: 98, name: "Helen (Payna)", role: "Trợ Thủ" },
+      { id: 99, name: "Jinna", role: "Pháp Sư" },
+      { id: 100, name: "Cresht", role: "Đỡ Đòn" },
+      { id: 101, name: "Natalya", role: "Pháp Sư" },
+      { id: 102, name: "Lumburr", role: "Đỡ Đòn" },
+      { id: 103, name: "Fennik", role: "Xạ Thủ" },
+      { id: 104, name: "Aleister", role: "Pháp Sư" },
+      { id: 105, name: "Grakk", role: "Đỡ Đòn" },
+      { id: 106, name: "Nakroth", role: "Sát Thủ" },
+      { id: 107, name: "Taara", role: "Đỡ Đòn" },
+      { id: 108, name: "Toro", role: "Đỡ Đòn" },
+      { id: 109, name: "Yorn", role: "Xạ Thủ" },
+      { id: 110, name: "Gildur", role: "Đỡ Đòn" },
+      { id: 111, name: "Alice", role: "Trợ Thủ" },
+      { id: 112, name: "Azzen'Ka", role: "Pháp Sư" },
+      { id: 113, name: "Ormarr", role: "Đấu Sĩ" },
+      { id: 114, name: "Butterfly", role: "Sát Thủ" },
+      { id: 115, name: "Violet", role: "Xạ Thủ" },
+      { id: 116, name: "Chaugnar", role: "Đỡ Đòn" },
+      { id: 117, name: "Điêu Thuyền", role: "Pháp Sư" },
+      { id: 118, name: "Zephys", role: "Đấu Sĩ" },
+      { id: 119, name: "Kahlii", role: "Pháp Sư" },
+      { id: 120, name: "Omega", role: "Đỡ Đòn" },
+      { id: 121, name: "Triệu Vân", role: "Sát Thủ" },
+      { id: 122, name: "Mganga", role: "Pháp Sư" },
+      { id: 123, name: "Krixi", role: "Pháp Sư" },
+      { id: 124, name: "Mina", role: "Đỡ Đòn" },
+      { id: 125, name: "Lữ Bố", role: "Đấu Sĩ" },
+      { id: 126, name: "Veera", role: "Pháp Sư" },
+      { id: 127, name: "Thane", role: "Đỡ Đòn" },
+      { id: 128, name: "Valhein", role: "Xạ Thủ" }
+    ];
+
+    // 2. STATE QUẢN LÝ ỨNG DỤNG
+    const state = {
+      // Set chứa các ID tướng đang được tích chọn (mặc định chọn đủ 128 tướng)
+      activeHeroIds: new Set(HERO_LIST.map(h => h.id)),
+      currentRoleFilter: "ALL",
+      searchQuery: "",
+      isSpinning: false,
+      soundEnabled: localStorage.getItem("aov_sound_enabled") !== "false",
+      history: JSON.parse(localStorage.getItem("aov_spin_history") || "[]"),
+      wheelAngle: 0,
+      targetAngle: 0,
+      firebaseConfig: JSON.parse(localStorage.getItem("aov_firebase_config") || "null"),
+      firebaseEnabled: localStorage.getItem("aov_firebase_enabled") === "true",
+      firestoreDb: null
+    };
+
+    // 3. BỘ TỔNG HỢP ÂM THANH SCI-FI BẰNG WEB AUDIO API (KHÔNG PHỤ THUỘC FILE NGOÀI)
+    class CyberAudioEngine {
+      constructor() {
+        this.ctx = null;
+      }
+
+      initContext() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playTick() {
+        if (!state.soundEnabled) return;
+        this.initContext();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "square";
+          osc.frequency.setValueAtTime(800 + Math.random() * 200, this.ctx.currentTime);
+          gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.03);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.03);
+        } catch (e) {
+          // Ignore audio restriction errors
+        }
+      }
+
+      playSpinStart() {
+        if (!state.soundEnabled) return;
+        this.initContext();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "sawtooth";
+          osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(600, this.ctx.currentTime + 0.4);
+          gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.4);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.4);
+        } catch (e) {}
+      }
+
+      playWinChord() {
+        if (!state.soundEnabled) return;
+        this.initContext();
+        if (!this.ctx) return;
+        try {
+          const notes = [523.25, 659.25, 783.99, 1046.50]; // C - E - G - C5 Cyber Victory Chord
+          notes.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.08);
+            gain.gain.setValueAtTime(0.08, this.ctx.currentTime + idx * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + idx * 0.08 + 1.2);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(this.ctx.currentTime + idx * 0.08);
+            osc.stop(this.ctx.currentTime + idx * 0.08 + 1.2);
+          });
+        } catch (e) {}
+      }
+    }
+
+    const sound = new CyberAudioEngine();
+
+    // 4. FIREBASE FIRESTORE INTEGRATION ENGINE (v9+ CDN)
+    function initFirebaseIntegration() {
+      if (state.firebaseEnabled && state.firebaseConfig) {
+        try {
+          if (!firebase.apps.length) {
+            firebase.initializeApp(state.firebaseConfig);
+          }
+          state.firestoreDb = firebase.firestore();
+          updateFirebaseStatusUI(true);
+        } catch (err) {
+          console.warn("Firebase Init Warning:", err);
+          updateFirebaseStatusUI(false, "LỖI KẾT NỐI");
+        }
+      } else {
+        updateFirebaseStatusUI(false);
+      }
+    }
+
+    function updateFirebaseStatusUI(isOnline, customText) {
+      const statusLabel = document.getElementById("firebase-status-label");
+      if (statusLabel) {
+        if (isOnline) {
+          statusLabel.innerHTML = `<span class="text-neon-green font-bold">FIREBASE: SYNCED</span>`;
+        } else {
+          statusLabel.innerHTML = customText ? `<span class="text-neon-pink">${customText}</span>` : `FIREBASE: LOCAL`;
+        }
+      }
+    }
+
+    async function syncSpinToFirebase(spinRecord) {
+      if (state.firebaseEnabled && state.firestoreDb) {
+        try {
+          await state.firestoreDb.collection("spin_history").add({
+            heroId: spinRecord.heroId,
+            heroName: spinRecord.heroName,
+            role: spinRecord.role,
+            source: spinRecord.source,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            clientTime: spinRecord.time
+          });
+        } catch (error) {
+          console.warn("Không thể lưu Firebase:", error);
+        }
+      }
+    }
+
+    // 5. THUẬT TOÁN NGẪU NHIÊN TUYỆT ĐỐI (RANDOM.ORG + CRYPTO FALLBACK)
+    /**
+     * Lấy số nguyên ngẫu nhiên từ min đến max:
+     * 1. Gửi request tới RANDOM.ORG: https://www.random.org/integers/
+     * 2. Fallback sang window.crypto.getRandomValues() bảo mật cao nếu lỗi.
+     */
+    async function fetchAbsoluteRandomNumber(min, max) {
+      const startTime = performance.now();
+      const count = max - min + 1;
+      
+      // Nếu chỉ có 1 ứng viên
+      if (count <= 1) {
+        return { number: min, source: "DETERMINISTIC", latency: 0 };
+      }
+
+      const randomOrgUrl = `https://www.random.org/integers/?num=1&min=${min}&max=${max}&col=1&base=10&format=plain&rnd=new`;
+
+      // Cố gắng gọi API Random.org với timeout 4 giây
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+        const response = await fetch(randomOrgUrl, {
+          signal: controller.signal,
+          headers: { 'Accept': 'text/plain' }
+        });
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          const text = await response.text();
+          const parsedNum = parseInt(text.trim(), 10);
+          if (!isNaN(parsedNum) && parsedNum >= min && parsedNum <= max) {
+            const latency = Math.round(performance.now() - startTime);
+            return {
+              number: parsedNum,
+              source: "RANDOM.ORG (Atmospheric Noise API)",
+              latency: latency
+            };
+          }
+        }
+        throw new Error("Phản hồi Random.org không hợp lệ");
+      } catch (err) {
+        // KÍCH HOẠT CƠ CHẾ DỰ PHÒNG: window.crypto.getRandomValues()
+        const latency = Math.round(performance.now() - startTime);
+        const cryptoRandomNumber = getSecureCryptoRandom(min, max);
+        return {
+          number: cryptoRandomNumber,
+          source: "CRYPTO.FALLBACK (Hardware CSPRNG)",
+          latency: latency
+        };
+      }
+    }
+
+    /**
+     * Thuật toán Unbiased Cryptographic Random sử dụng Web Crypto API
+     * Loại bỏ hoàn toàn sai số Modulo Bias
+     */
+    function getSecureCryptoRandom(min, max) {
+      const range = max - min + 1;
+      const maxUint32 = 0xFFFFFFFF;
+      const limit = maxUint32 - (maxUint32 % range);
+      const randomBuffer = new Uint32Array(1);
+
+      let rand;
+      do {
+        window.crypto.getRandomValues(randomBuffer);
+        rand = randomBuffer[0];
+      } while (rand >= limit);
+
+      return min + (rand % range);
+    }
+
+    // 6. RENDER CANVAS VÒNG QUAY CYBERPUNK (HIGH-DPI & PARTICLE PHYSICS)
+    const canvas = document.getElementById("wheel-canvas");
+    const ctx = canvas.getContext("2d");
+
+    function getActiveHeroes() {
+      return HERO_LIST.filter(h => state.activeHeroIds.has(h.id));
+    }
+
+    function drawWheel(currentAngle = state.wheelAngle) {
+      const activeHeroes = getActiveHeroes();
+      const numSectors = Math.max(activeHeroes.length, 1);
+      const width = canvas.width;
+      const height = canvas.height;
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const radius = width / 2 - 16;
+
+      ctx.clearRect(0, 0, width, height);
+
+      // Lưu trạng thái canvas
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(currentAngle);
+
+      // Nếu không có tướng nào được chọn
+      if (activeHeroes.length === 0) {
+        ctx.beginPath();
+        ctx.arc(0, 0, radius, 0, 2 * Math.PI);
+        ctx.fillStyle = "#121824";
+        ctx.fill();
+        ctx.strokeStyle = "#FF007F";
+        ctx.lineWidth = 4;
+        ctx.stroke();
+
+        ctx.restore();
+        return;
+      }
+
+      const arcSize = (2 * Math.PI) / numSectors;
+
+      // Vẽ từng nan quạt của vòng quay
+      for (let i = 0; i < numSectors; i++) {
+        const startAngle = i * arcSize;
+        const endAngle = startAngle + arcSize;
+
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, radius, startAngle, endAngle);
+        ctx.closePath();
+
+        // Màu nan quạt xen kẽ cyberpunk HUD
+        const colorPalette = [
+          '#131B2A', '#192438', '#101724', '#1B263B',
+          '#152033', '#111926'
+        ];
+        ctx.fillStyle = colorPalette[i % colorPalette.length];
+        ctx.fill();
+
+        // Viền nan quạt
+        ctx.strokeStyle = (i % 2 === 0) ? 'rgba(0, 255, 102, 0.25)' : 'rgba(0, 229, 255, 0.2)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Vẽ tên tướng nếu số lượng hợp lý (< 48 tướng hiển thị rõ, > 48 hiển thị vạch tech)
+        if (numSectors <= 48) {
+          ctx.save();
+          ctx.rotate(startAngle + arcSize / 2);
+          ctx.textAlign = "right";
+          ctx.textBaseline = "middle";
+          ctx.font = "bold 13px 'Rajdhani', sans-serif";
+          ctx.fillStyle = (i % 2 === 0) ? "#00FF66" : "#00E5FF";
+          
+          const heroName = activeHeroes[i].name;
+          const truncatedName = heroName.length > 13 ? heroName.substring(0, 11) + '..' : heroName;
+          ctx.fillText(truncatedName, radius - 20, 0);
+          ctx.restore();
+        } else {
+          // Khi danh sách lớn (như 128 tướng), vẽ các vạch năng lượng công nghệ
+          ctx.save();
+          ctx.rotate(startAngle + arcSize / 2);
+          ctx.beginPath();
+          ctx.moveTo(radius - 24, 0);
+          ctx.lineTo(radius - 8, 0);
+          ctx.strokeStyle = (i % 4 === 0) ? '#00FF66' : ((i % 2 === 0) ? '#00E5FF' : 'rgba(255,255,255,0.2)');
+          ctx.lineWidth = (i % 4 === 0) ? 2 : 1;
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+
+      // Viền kim loại ngoài cùng với đèn LED
+      ctx.beginPath();
+      ctx.arc(0, 0, radius, 0, 2 * Math.PI);
+      ctx.strokeStyle = "#00FF66";
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      // Đèn LED xung quanh viền
+      const ledCount = Math.min(numSectors, 64);
+      for (let j = 0; j < ledCount; j++) {
+        const ledAngle = (j * 2 * Math.PI) / ledCount;
+        const lx = Math.cos(ledAngle) * (radius - 2);
+        const ly = Math.sin(ledAngle) * (radius - 2);
+        
+        ctx.beginPath();
+        ctx.arc(lx, ly, 3, 0, 2 * Math.PI);
+        ctx.fillStyle = (j % 2 === 0) ? '#00FF66' : '#00E5FF';
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    // 7. HIỆU ỨNG QUAY VÒNG VẬT LÝ VÀ GIẢI MÃ TÊN MATRIX
+    let animationFrameId = null;
+
+    function triggerDecryptorShuffle(targetHero, durationMs) {
+      const decryptorId = document.getElementById("decryptor-id");
+      const decryptorName = document.getElementById("decryptor-name");
+      const decryptorRole = document.getElementById("decryptor-role");
+      
+      const startTime = performance.now();
+      const activeHeroes = getActiveHeroes();
+      
+      function updateShuffle() {
+        const elapsed = performance.now() - startTime;
+        if (elapsed < durationMs) {
+          // Chọn ngẫu nhiên 1 tướng để hiển thị tốc độ cao
+          const randHero = activeHeroes[Math.floor(Math.random() * activeHeroes.length)];
+          decryptorId.textContent = `ID #${randHero.id < 10 ? '0' + randHero.id : randHero.id}`;
+          decryptorName.textContent = randHero.name.toUpperCase();
+          decryptorRole.textContent = randHero.role;
+          requestAnimationFrame(updateShuffle);
+        } else {
+          // Dừng lại đúng tướng chiến thắng
+          decryptorId.textContent = `ID #${targetHero.id < 10 ? '0' + targetHero.id : targetHero.id}`;
+          decryptorName.textContent = targetHero.name.toUpperCase();
+          decryptorRole.textContent = targetHero.role;
+        }
+      }
+      requestAnimationFrame(updateShuffle);
+    }
+
+    async function spinRoulette() {
+      if (state.isSpinning) return;
+
+      const activeHeroes = getActiveHeroes();
+      if (activeHeroes.length === 0) {
+        showToast("VUI LÒNG CHỌN ÍT NHẤT 1 TƯỚNG ĐỂ QUAY!", "error");
+        return;
+      }
+
+      state.isSpinning = true;
+      sound.playSpinStart();
+
+      // Cập nhật UI nút quay
+      const btnSpin = document.getElementById("btn-spin");
+      const btnSpinText = document.getElementById("btn-spin-text");
+      const hudAlgorithm = document.getElementById("hud-algorithm-badge");
+      const hudLatency = document.getElementById("hud-latency");
+
+      btnSpin.classList.remove("animate-neon-pulse");
+      btnSpin.classList.add("opacity-80", "cursor-not-allowed");
+      btnSpinText.textContent = "ĐANG KẾT NỐI RANDOM.ORG...";
+
+      // 1. Gửi request lấy số ngẫu nhiên từ Random.org
+      const result = await fetchAbsoluteRandomNumber(1, activeHeroes.length);
+
+      // Cập nhật Telemetry trên HUD
+      hudAlgorithm.textContent = result.source.includes("RANDOM.ORG") ? "RANDOM.ORG (KHÍ QUYỂN)" : "CRYPTO TRNG (DỰ PHÒNG)";
+      hudLatency.innerHTML = `${result.latency} <span class="text-xs text-gray-400 font-normal">ms</span>`;
+      
+      const entropyPill = document.getElementById("entropy-source-pill");
+      if (result.source.includes("RANDOM.ORG")) {
+        entropyPill.className = "text-xs font-tech px-2 py-0.5 rounded bg-neon-green/20 text-neon-green border border-neon-green/40 flex items-center gap-1.5";
+        entropyPill.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-neon-green animate-ping"></span> RANDOM.ORG VERIFIED`;
+      } else {
+        entropyPill.className = "text-xs font-tech px-2 py-0.5 rounded bg-cyber-cyan/20 text-cyber-cyan border border-cyber-cyan/40 flex items-center gap-1.5";
+        entropyPill.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-cyber-cyan"></span> CRYPTO CSPRNG`;
+      }
+
+      // Tra cứu tướng trúng giải từ số thứ tự trả về (1-based index)
+      const winnerIndex = result.number - 1;
+      const winnerHero = activeHeroes[winnerIndex];
+
+      btnSpinText.textContent = "VÒNG QUAY ĐANG TĂNG TỐC...";
+
+      // 2. Tính toán góc quay chính xác để kim đỉnh (270 độ hoặc -PI/2) chỉ đúng nan quạt của winnerHero
+      const numSectors = activeHeroes.length;
+      const arcSize = (2 * Math.PI) / numSectors;
+
+      // Góc trung tâm của nan quạt winner trong hệ tọa độ canvas
+      const winnerSectorCenter = winnerIndex * arcSize + arcSize / 2;
+
+      // Kim ở vị trí 12 giờ: tương ứng góc 3*PI/2 (hoặc -PI/2)
+      const pointerAngle = (3 * Math.PI) / 2;
+
+      // Góc quay thêm ít nhất 6-8 vòng tròn đầy đủ (full spins) để tạo hiệu ứng gia tốc
+      const fullRotations = 6 + Math.floor(Math.random() * 3);
+      const totalRotationAngle = (fullRotations * 2 * Math.PI) + (pointerAngle - winnerSectorCenter);
+
+      const startAngle = state.wheelAngle % (2 * Math.PI);
+      const endAngle = startAngle + totalRotationAngle;
+      const spinDuration = 5200; // 5.2 giây quay mượt mà
+
+      // Kích hoạt giải mã tên ma trận
+      triggerDecryptorShuffle(winnerHero, spinDuration);
+
+      const spinStartTime = performance.now();
+      let lastTickAngle = startAngle;
+
+      // Animation loop sử dụng công thức làm chậm chuyển động (Quartic Ease-Out)
+      function animateSpin(now) {
+        const elapsed = now - spinStartTime;
+        const progress = Math.min(elapsed / spinDuration, 1);
+
+        // Easing function: Quartic ease-out cho cảm giác lực ma sát thực tế
+        const easeOutProgress = 1 - Math.pow(1 - progress, 4);
+        const currentAngle = startAngle + (endAngle - startAngle) * easeOutProgress;
+        state.wheelAngle = currentAngle;
+
+        drawWheel(currentAngle);
+
+        // Âm thanh kim gõ nan quạt (Tick sound)
+        if (Math.abs(currentAngle - lastTickAngle) >= arcSize) {
+          sound.playTick();
+          lastTickAngle = currentAngle;
+        }
+
+        if (progress < 1) {
+          animationFrameId = requestAnimationFrame(animateSpin);
+        } else {
+          // KẾT THÚC LƯỢT QUAY
+          state.wheelAngle = endAngle % (2 * Math.PI);
+          drawWheel(state.wheelAngle);
+          state.isSpinning = false;
+
+          // Khôi phục nút quay
+          btnSpin.classList.remove("opacity-80", "cursor-not-allowed");
+          btnSpin.classList.add("animate-neon-pulse");
+          btnSpinText.textContent = "QUAY TƯỚNG (RANDOM.ORG)";
+
+          // Âm thanh chiến thắng & pháo hoa Neon
+          sound.playWinChord();
+          triggerCyberConfetti();
+
+          // Lưu vào lịch sử
+          const nowFormatted = new Date();
+          const timeStr = `${String(nowFormatted.getHours()).padStart(2, '0')}:${String(nowFormatted.getMinutes()).padStart(2, '0')}:${String(nowFormatted.getSeconds()).padStart(2, '0')} ${String(nowFormatted.getDate()).padStart(2, '0')}/${String(nowFormatted.getMonth() + 1).padStart(2, '0')}/${nowFormatted.getFullYear()}`;
+
+          const spinRecord = {
+            id: Date.now(),
+            heroId: winnerHero.id,
+            heroName: winnerHero.name,
+            role: winnerHero.role,
+            source: result.source,
+            time: timeStr
+          };
+
+          saveSpinRecord(spinRecord);
+
+          // Hiển thị Modal Sci-Fi Hologram
+          showWinnerModal(winnerHero, result, timeStr, activeHeroes.length);
+        }
+      }
+
+      animationFrameId = requestAnimationFrame(animateSpin);
+    }
+
+    // 8. HIỆU ỨNG PHÁO HOA NEON (CYBER CONFETTI)
+    function triggerCyberConfetti() {
+      if (typeof confetti === "function") {
+        confetti({
+          particleCount: 80,
+          spread: 80,
+          origin: { y: 0.6 },
+          colors: ['#00FF66', '#00FF88', '#00E5FF', '#FF007F', '#FFFFFF']
+        });
+        setTimeout(() => {
+          confetti({
+            particleCount: 50,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0 },
+            colors: ['#00FF66', '#00E5FF']
+          });
+          confetti({
+            particleCount: 50,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1 },
+            colors: ['#00FF88', '#FF007F']
+          });
+        }, 250);
+      }
+    }
+
+    // 9. QUẢN LÝ POPUP MODAL CHIẾN THẮNG
+    const modalWinner = document.getElementById("modal-winner");
+    const modalWinnerContent = document.getElementById("modal-winner-content");
+
+    function showWinnerModal(hero, result, timeStr, totalCandidates) {
+      document.getElementById("modal-winner-id").textContent = `TƯỚNG LIÊN QUÂN #${hero.id < 10 ? '0' + hero.id : hero.id}`;
+      document.getElementById("modal-winner-name").textContent = hero.name;
+      document.getElementById("modal-winner-bg-id").textContent = `#${hero.id}`;
+      document.getElementById("modal-winner-role").textContent = `VỊ TRÍ: ${hero.role.toUpperCase()}`;
+      document.getElementById("modal-winner-source").textContent = result.source;
+      document.getElementById("modal-winner-time").textContent = timeStr;
+      document.getElementById("modal-winner-candidates").textContent = `${totalCandidates} Tướng`;
+
+      modalWinner.classList.remove("hidden");
+      setTimeout(() => {
+        modalWinnerContent.classList.remove("scale-95", "opacity-0");
+        modalWinnerContent.classList.add("scale-100", "opacity-100");
+      }, 20);
+    }
+
+    function closeWinnerModal() {
+      modalWinnerContent.classList.remove("scale-100", "opacity-100");
+      modalWinnerContent.classList.add("scale-95", "opacity-0");
+      setTimeout(() => {
+        modalWinner.classList.add("hidden");
+      }, 250);
+    }
+
+    // 10. QUẢN LÝ LỊCH SỬ LƯỢT QUAY (SPIN HISTORY)
+    function saveSpinRecord(record) {
+      state.history.unshift(record);
+      if (state.history.length > 10) {
+        state.history = state.history.slice(0, 10);
+      }
+      localStorage.setItem("aov_spin_history", JSON.stringify(state.history));
+      renderHistoryList();
+      syncSpinToFirebase(record);
+    }
+
+    function renderHistoryList() {
+      const historyContainer = document.getElementById("spin-history-list");
+      if (state.history.length === 0) {
+        historyContainer.innerHTML = `
+          <div class="text-center py-6 text-gray-500 font-tech text-xs">
+            CHƯA CÓ LƯỢT QUAY NÀO ĐƯỢC GHI NHẬN
+          </div>
+        `;
+        return;
+      }
+
+      historyContainer.innerHTML = state.history.map((item, index) => {
+        const isRandomOrg = item.source.includes("RANDOM.ORG");
+        return `
+          <div class="p-2.5 bg-cyber-surface/70 border border-cyber-border clip-chamfer flex items-center justify-between gap-2 hover:border-neon-green/40 transition-colors">
+            <div class="flex items-center space-x-2.5">
+              <span class="text-xs font-tech font-bold px-1.5 py-0.5 bg-cyber-dark text-neon-green border border-neon-green/30">#${item.heroId}</span>
+              <div>
+                <div class="text-sm font-tech font-bold text-white tracking-wide">${item.heroName}</div>
+                <div class="text-[10px] text-gray-400 font-tech flex items-center gap-1.5">
+                  <span>${item.role}</span>
+                  <span>&bull;</span>
+                  <span>${item.time}</span>
+                </div>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="text-[10px] font-tech px-1.5 py-0.5 rounded ${isRandomOrg ? 'bg-neon-green/10 text-neon-green border border-neon-green/30' : 'bg-cyber-cyan/10 text-cyber-cyan border border-cyber-cyan/30'}">
+                ${isRandomOrg ? 'RANDOM.ORG' : 'CRYPTO'}
+              </span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function clearSpinHistory() {
+      if (state.history.length === 0) return;
+      state.history = [];
+      localStorage.removeItem("aov_spin_history");
+      renderHistoryList();
+      showToast("ĐÃ XÓA TOÀN BỘ LỊCH SỬ QUAY!", "success");
+    }
+
+    // 11. BỘ LỌC DANH SÁCH TƯỚNG & TÌM KIẾM
+    function renderHeroesCheckboxList() {
+      const container = document.getElementById("heroes-checkbox-list");
+      const search = state.searchQuery.toLowerCase().trim();
+      const roleFilter = state.currentRoleFilter;
+
+      const filtered = HERO_LIST.filter(h => {
+        const matchesRole = (roleFilter === "ALL" || h.role === roleFilter);
+        const matchesSearch = !search || h.name.toLowerCase().includes(search) || String(h.id) === search;
+        return matchesRole && matchesSearch;
+      });
+
+      document.getElementById("visible-count-label").textContent = `Hiển thị ${filtered.length} / 128 tướng`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-6 text-gray-500 font-tech text-xs">
+            KHÔNG TÌM THẤY TƯỚNG PHÙ HỢP VỚI TỪ KHÓA
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(h => {
+        const isChecked = state.activeHeroIds.has(h.id);
+        return `
+          <label class="flex items-center justify-between p-1.5 px-2 hover:bg-cyber-dark/80 rounded cursor-pointer transition-colors border-b border-cyber-border/40 last:border-b-0">
+            <div class="flex items-center space-x-2.5">
+              <input 
+                type="checkbox" 
+                data-hero-id="${h.id}" 
+                class="cyber-checkbox w-4 h-4 rounded bg-cyber-dark border border-cyber-border text-neon-green focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                ${isChecked ? 'checked' : ''}
+              />
+              <span class="text-xs font-tech text-gray-400 w-7">#${h.id < 10 ? '0' + h.id : h.id}</span>
+              <span class="text-sm font-body font-semibold ${isChecked ? 'text-white' : 'text-gray-500 line-through'}">${h.name}</span>
+            </div>
+            <span class="text-[10px] font-tech px-2 py-0.5 bg-cyber-dark border border-cyber-border text-gray-400 rounded">
+              ${h.role}
+            </span>
+          </label>
+        `;
+      }).join('');
+
+      // Gắn sự kiện thay đổi cho từng checkbox
+      const checkboxes = container.querySelectorAll("input[type='checkbox']");
+      checkboxes.forEach(cb => {
+        cb.addEventListener("change", (e) => {
+          const heroId = parseInt(e.target.dataset.heroId, 10);
+          if (e.target.checked) {
+            state.activeHeroIds.add(heroId);
+          } else {
+            state.activeHeroIds.delete(heroId);
+          }
+          sound.playTick();
+          updateFilterBadges();
+          drawWheel();
+        });
+      });
+    }
+
+    function updateFilterBadges() {
+      const activeCount = state.activeHeroIds.size;
+      document.getElementById("hud-active-count").innerHTML = `${activeCount} <span class="text-xs text-gray-400 font-normal">/ 128</span>`;
+      document.getElementById("filter-selected-badge").textContent = `${activeCount}/128 TƯỚNG`;
+      document.getElementById("wheel-center-number").textContent = `${activeCount} HERO`;
+    }
+
+    function selectAllHeroes() {
+      HERO_LIST.forEach(h => state.activeHeroIds.add(h.id));
+      sound.playTick();
+      updateFilterBadges();
+      renderHeroesCheckboxList();
+      drawWheel();
+      showToast("ĐÃ CHỌN TẤT CẢ 128 TƯỚNG", "success");
+    }
+
+    function deselectAllHeroes() {
+      state.activeHeroIds.clear();
+      sound.playTick();
+      updateFilterBadges();
+      renderHeroesCheckboxList();
+      drawWheel();
+      showToast("ĐÃ BỎ CHỌN TOÀN BỘ DANH SÁCH", "info");
+    }
+
+    // 12. TOAST NOTIFICATION HUD
+    let toastTimeout = null;
+    function showToast(message, type = "success") {
+      const toast = document.getElementById("toast-hud");
+      const toastMsg = document.getElementById("toast-message");
+      const toastIcon = document.getElementById("toast-icon");
+
+      toastMsg.textContent = message;
+      if (type === "error") {
+        toastIcon.className = "fa-solid fa-triangle-exclamation text-neon-pink";
+        toast.querySelector("div").style.borderColor = "#FF007F";
+      } else if (type === "info") {
+        toastIcon.className = "fa-solid fa-circle-info text-cyber-cyan";
+        toast.querySelector("div").style.borderColor = "#00E5FF";
+      } else {
+        toastIcon.className = "fa-solid fa-circle-check text-neon-green";
+        toast.querySelector("div").style.borderColor = "#00FF66";
+      }
+
+      toast.classList.remove("translate-y-20", "opacity-0");
+      toast.classList.add("translate-y-0", "opacity-100");
+
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove("translate-y-0", "opacity-100");
+        toast.classList.add("translate-y-20", "opacity-0");
+      }, 2500);
+    }
+
+    // 13. SAO CHÉP KẾT QUẢ & TẢI FILE INDEX.HTML ĐỘC LẬP
+    function copyWinnerResult() {
+      const winnerName = document.getElementById("modal-winner-name").textContent;
+      const winnerId = document.getElementById("modal-winner-id").textContent;
+      const textToCopy = `[Vòng Quay Liên Quân] ${winnerId}: ${winnerName} (Ngẫu nhiên bởi Random.org)`;
+
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        showToast("ĐÃ SAO CHÉP KẾT QUẢ VÀO BỘ NHỚ TẠM!", "success");
+      }).catch(() => {
+        showToast("LỖI KHI SAO CHÉP KẾT QUẢ", "error");
+      });
+    }
+
+    function exportStandaloneHtml() {
+      const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+      const blob = new Blob([htmlContent], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "index.html";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast("ĐÃ TẢI FILE INDEX.HTML ĐỘC LẬP!", "success");
+    }
+
+    // 14. KHỞI TẠO VÀ GẮN SỰ KIỆN TOÀN TRANG
+    document.addEventListener("DOMContentLoaded", () => {
+      // Khởi tạo Canvas Wheel
+      drawWheel();
+      renderHeroesCheckboxList();
+      renderHistoryList();
+      initFirebaseIntegration();
+
+      // Nút Quay
+      document.getElementById("btn-spin").addEventListener("click", spinRoulette);
+
+      // Nút Chọn tất cả / Bỏ chọn tất cả
+      document.getElementById("btn-select-all").addEventListener("click", selectAllHeroes);
+      document.getElementById("btn-deselect-all").addEventListener("click", deselectAllHeroes);
+
+      // Tìm kiếm tướng
+      const searchInput = document.getElementById("hero-search-input");
+      const clearSearchBtn = document.getElementById("btn-clear-search");
+
+      searchInput.addEventListener("input", (e) => {
+        state.searchQuery = e.target.value;
+        if (state.searchQuery.trim().length > 0) {
+          clearSearchBtn.classList.remove("hidden");
+        } else {
+          clearSearchBtn.classList.add("hidden");
+        }
+        renderHeroesCheckboxList();
+      });
+
+      clearSearchBtn.addEventListener("click", () => {
+        searchInput.value = "";
+        state.searchQuery = "";
+        clearSearchBtn.classList.add("hidden");
+        renderHeroesCheckboxList();
+      });
+
+      // Lọc theo Role
+      const roleBtns = document.querySelectorAll(".role-filter-btn");
+      roleBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+          roleBtns.forEach(b => {
+            b.classList.remove("active", "bg-neon-green", "text-black", "font-bold", "border-neon-green");
+            b.classList.add("bg-cyber-surface", "text-gray-300", "border-cyber-border");
+          });
+          btn.classList.add("active", "bg-neon-green", "text-black", "font-bold", "border-neon-green");
+          btn.classList.remove("bg-cyber-surface", "text-gray-300", "border-cyber-border");
+
+          state.currentRoleFilter = btn.dataset.role;
+          sound.playTick();
+          renderHeroesCheckboxList();
+        });
+      });
+
+      // Bật/Tắt Âm thanh
+      const soundBtn = document.getElementById("btn-sound-toggle");
+      const soundIcon = document.getElementById("sound-icon");
+
+      function updateSoundUI() {
+        if (state.soundEnabled) {
+          soundIcon.className = "fa-solid fa-volume-high text-neon-green";
+          soundBtn.querySelector("span").textContent = "SFX: ON";
+        } else {
+          soundIcon.className = "fa-solid fa-volume-xmark text-gray-500";
+          soundBtn.querySelector("span").textContent = "SFX: OFF";
+        }
+      }
+      updateSoundUI();
+
+      soundBtn.addEventListener("click", () => {
+        state.soundEnabled = !state.soundEnabled;
+        localStorage.setItem("aov_sound_enabled", state.soundEnabled);
+        updateSoundUI();
+        if (state.soundEnabled) sound.playTick();
+      });
+
+      // Xóa lịch sử
+      document.getElementById("btn-clear-history").addEventListener("click", clearSpinHistory);
+
+      // Modal Winner Controls
+      document.getElementById("btn-modal-close").addEventListener("click", closeWinnerModal);
+      document.getElementById("btn-modal-copy").addEventListener("click", copyWinnerResult);
+      document.getElementById("btn-modal-spin-again").addEventListener("click", () => {
+        closeWinnerModal();
+        setTimeout(spinRoulette, 300);
+      });
+
+      // Click ra ngoài để đóng modal
+      modalWinner.addEventListener("click", (e) => {
+        if (e.target === modalWinner) closeWinnerModal();
+      });
+
+      // Xuất file index.html độc lập
+      document.getElementById("btn-export-html").addEventListener("click", exportStandaloneHtml);
+
+      // Modal Firebase Controls
+      const modalFirebase = document.getElementById("modal-firebase");
+      const btnOpenFirebase = document.getElementById("btn-open-firebase");
+      const btnCloseFirebase = document.getElementById("btn-firebase-close");
+      const firebaseToggle = document.getElementById("firebase-enable-toggle");
+      const firebaseConfigInput = document.getElementById("firebase-config-json");
+      const btnSaveFirebase = document.getElementById("btn-firebase-save");
+      const btnTestFirebase = document.getElementById("btn-firebase-test");
+      const firebaseFeedback = document.getElementById("firebase-feedback");
+
+      // Load cấu hình hiện tại vào form
+      firebaseToggle.checked = state.firebaseEnabled;
+      if (state.firebaseConfig) {
+        firebaseConfigInput.value = JSON.stringify(state.firebaseConfig, null, 2);
+      }
+
+      btnOpenFirebase.addEventListener("click", () => {
+        modalFirebase.classList.remove("hidden");
+      });
+
+      btnCloseFirebase.addEventListener("click", () => {
+        modalFirebase.classList.add("hidden");
+      });
+
+      modalFirebase.addEventListener("click", (e) => {
+        if (e.target === modalFirebase) modalFirebase.classList.add("hidden");
+      });
+
+      btnSaveFirebase.addEventListener("click", () => {
+        const isEnabled = firebaseToggle.checked;
+        const configStr = firebaseConfigInput.value.trim();
+
+        if (isEnabled && configStr) {
+          try {
+            const parsed = JSON.parse(configStr);
+            state.firebaseConfig = parsed;
+            state.firebaseEnabled = true;
+            localStorage.setItem("aov_firebase_config", JSON.stringify(parsed));
+            localStorage.setItem("aov_firebase_enabled", "true");
+            initFirebaseIntegration();
+            showToast("ĐÃ LƯU CẤU HÌNH FIREBASE THÀNH CÔNG!", "success");
+            modalFirebase.classList.add("hidden");
+          } catch (e) {
+            firebaseFeedback.textContent = "Lỗi cú pháp JSON. Vui lòng kiểm tra lại cấu hình.";
+            firebaseFeedback.className = "mt-3 text-xs font-tech text-center text-neon-pink";
+            firebaseFeedback.classList.remove("hidden");
+          }
+        } else {
+          state.firebaseEnabled = false;
+          localStorage.setItem("aov_firebase_enabled", "false");
+          updateFirebaseStatusUI(false);
+          showToast("ĐÃ TẮT ĐỒNG BỘ FIREBASE (CHẾ ĐỘ LOCAL)", "info");
+          modalFirebase.classList.add("hidden");
+        }
+      });
+
+      btnTestFirebase.addEventListener("click", () => {
+        const configStr = firebaseConfigInput.value.trim();
+        if (!configStr) {
+          firebaseFeedback.textContent = "Vui lòng nhập JSON cấu hình Firebase trước khi thử.";
+          firebaseFeedback.className = "mt-3 text-xs font-tech text-center text-neon-pink";
+          firebaseFeedback.classList.remove("hidden");
+          return;
+        }
+
+        try {
+          const parsed = JSON.parse(configStr);
+          firebaseFeedback.textContent = "Đang kiểm tra kết nối tới Firebase...";
+          firebaseFeedback.className = "mt-3 text-xs font-tech text-center text-cyber-cyan";
+          firebaseFeedback.classList.remove("hidden");
+
+          if (!firebase.apps.length) {
+            firebase.initializeApp(parsed);
+          }
+          const testDb = firebase.firestore();
+          testDb.collection("spin_history").limit(1).get()
+            .then(() => {
+              firebaseFeedback.textContent = "KẾT NỐI FIREBASE FIRESTORE THÀNH CÔNG!";
+              firebaseFeedback.className = "mt-3 text-xs font-tech text-center text-neon-green";
+            })
+            .catch(err => {
+              firebaseFeedback.textContent = "Lỗi kết nối Firebase: " + (err.message || "Kiểm tra Rules hoặc Config");
+              firebaseFeedback.className = "mt-3 text-xs font-tech text-center text-neon-pink";
+            });
+        } catch (err) {
+          firebaseFeedback.textContent = "JSON không đúng định dạng: " + err.message;
+          firebaseFeedback.className = "mt-3 text-xs font-tech text-center text-neon-pink";
+          firebaseFeedback.classList.remove("hidden");
+        }
+      });
+
+      // Hỗ trợ Responsive Canvas resize
+      window.addEventListener("resize", () => {
+        drawWheel();
+      });
+    });
+  </script>
+</body>
+</html>

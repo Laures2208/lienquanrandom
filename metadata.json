@@ -1,0 +1,6 @@
+{
+  "name": "Vòng Quay Tướng Liên Quân Mobile",
+  "description": "Vòng quay chọn tướng Liên Quân Mobile ngẫu nhiên tuyệt đối sử dụng thuật toán Random.org và Crypto API với giao diện Cyberpunk HUD futuristic.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
