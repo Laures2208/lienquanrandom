@@ -249,6 +249,144 @@
       border-color: #00FF66;
       box-shadow: 0 0 8px #00FF66;
     }
+
+    /* CS:GO Crate & Reel Animations */
+    @keyframes chest-float {
+      0%, 100% {
+        transform: translateY(0px);
+        filter: drop-shadow(0 15px 25px rgba(0, 255, 102, 0.25));
+      }
+      50% {
+        transform: translateY(-8px);
+        filter: drop-shadow(0 25px 35px rgba(0, 255, 102, 0.45));
+      }
+    }
+
+    @keyframes chest-rumble {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      20% { transform: translate(-3px, 2px) rotate(-1deg); }
+      40% { transform: translate(3px, -2px) rotate(1deg); }
+      60% { transform: translate(-2px, -2px) rotate(-0.5deg); }
+      80% { transform: translate(2px, 2px) rotate(0.5deg); }
+      100% { transform: translate(0, 0) rotate(0deg); }
+    }
+
+    @keyframes lid-lift {
+      0% {
+        transform: translateY(0) rotateX(0deg);
+      }
+      35% {
+        transform: translateY(-20px) rotateX(-25deg);
+      }
+      100% {
+        transform: translateY(-75px) rotateX(-65deg) scale(0.92);
+        opacity: 0.6;
+      }
+    }
+
+    @keyframes laser-burst {
+      0% {
+        opacity: 0;
+        transform: scaleY(0) scaleX(0.2);
+      }
+      30% {
+        opacity: 1;
+        transform: scaleY(1.3) scaleX(1);
+        box-shadow: 0 0 60px #00FF66, 0 0 100px #00E5FF;
+      }
+      80% {
+        opacity: 0.9;
+        transform: scaleY(1.5) scaleX(1.4);
+      }
+      100% {
+        opacity: 0;
+        transform: scaleY(2) scaleX(2);
+      }
+    }
+
+    @keyframes screen-flash-anim {
+      0% { opacity: 0; }
+      35% { opacity: 0.9; }
+      100% { opacity: 0; }
+    }
+
+    .animate-chest-float {
+      animation: chest-float 3.5s ease-in-out infinite;
+    }
+
+    .animate-chest-rumble {
+      animation: chest-rumble 0.08s linear infinite;
+    }
+
+    .animate-lid-lift {
+      animation: lid-lift 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+      transform-origin: top center;
+    }
+
+    .animate-laser-burst {
+      animation: laser-burst 1.2s ease-out forwards;
+      transform-origin: bottom center;
+    }
+
+    .animate-screen-flash {
+      animation: screen-flash-anim 1.2s ease-out forwards;
+    }
+
+    /* CS:GO Horizontal Reel Track */
+    .csgo-reel-viewport {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+    }
+
+    .csgo-reel-track {
+      display: flex;
+      gap: 12px;
+      will-change: transform;
+    }
+
+    .csgo-crosshair {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 3px;
+      transform: translateX(-50%);
+      background: #00FF66;
+      box-shadow: 0 0 12px #00FF66, 0 0 24px #00FF66;
+      z-index: 25;
+      pointer-events: none;
+    }
+
+    .csgo-crosshair::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 14px solid #00FF66;
+      filter: drop-shadow(0 0 8px #00FF66);
+    }
+
+    .csgo-crosshair::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-bottom: 14px solid #00FF66;
+      filter: drop-shadow(0 0 8px #00FF66);
+    }
   </style>
 </head>
 
@@ -349,95 +487,279 @@
       <!-- MAIN LAYOUT: WHEEL / VISUALIZER (LEFT) + FILTER & HISTORY (RIGHT) -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-        <!-- LEFT COLUMN: ROULETTE WHEEL & DECRYPTOR HUD (7 COLS) -->
+        <!-- LEFT COLUMN: ROULETTE WHEEL & CS:GO CASE HUD (7 COLS) -->
         <div class="lg:col-span-7 flex flex-col items-center">
           
-          <div class="w-full clip-chamfer-lg bg-cyber-dark border-2 border-cyber-border p-4 sm:p-6 hud-bracket relative overflow-hidden flex flex-col items-center">
-            
-            <!-- Atmospheric Radar Scan Overlay Background -->
-            <div class="absolute -top-32 -left-32 w-80 h-80 bg-neon-green/5 rounded-full blur-3xl pointer-events-none"></div>
-            <div class="absolute -bottom-32 -right-32 w-80 h-80 bg-cyber-cyan/5 rounded-full blur-3xl pointer-events-none"></div>
-
-            <!-- Header of Spin Module -->
-            <div class="w-full flex items-center justify-between border-b border-cyber-border pb-3 mb-4">
-              <div class="flex items-center space-x-2">
-                <span class="w-2.5 h-2.5 bg-neon-green rounded-full animate-ping"></span>
-                <h2 class="font-tech text-sm sm:text-base font-bold tracking-wider text-white">CYBER ROULETTE HUD</h2>
-              </div>
-              <div class="text-xs font-tech text-gray-400 flex items-center gap-2">
-                <span>RADAR SENSORS: <span class="text-neon-green">ACTIVE</span></span>
-              </div>
-            </div>
-
-            <!-- Matrix Hero Decryptor Strip (Real-time cyber roll display) -->
-            <div class="w-full mb-4 p-3 bg-cyber-surface/90 border border-cyber-border clip-chamfer flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div class="flex items-center space-x-3 w-full sm:w-auto">
-                <div class="w-11 h-11 rounded-lg border border-neon-green/60 overflow-hidden bg-cyber-dark flex-shrink-0 relative box-glow-green">
-                  <img id="decryptor-avatar" src="/heroes/1.jpg" alt="Hero Avatar" class="w-full h-full object-cover" onerror="handleAvatarError(this, 'Tamyn', 'Trợ Thủ', 1)" />
-                  <div class="absolute inset-0 bg-gradient-to-t from-neon-green/20 to-transparent pointer-events-none"></div>
-                </div>
-                <div>
-                  <div class="flex items-center gap-2">
-                    <span class="text-[10px] font-tech text-gray-400 tracking-wider">TARGET:</span>
-                    <span id="decryptor-id" class="text-xs font-tech font-bold px-1.5 py-0.2 bg-neon-green/20 text-neon-green border border-neon-green/40">ID #---</span>
-                  </div>
-                  <div id="decryptor-name" class="text-base sm:text-lg font-tech font-bold text-white tracking-widest neon-glow-green truncate max-w-[200px] sm:max-w-[280px]">SẴN SÀNG QUAY</div>
-                </div>
-              </div>
-              <div class="flex items-center space-x-2">
-                <span id="decryptor-role" class="text-xs font-tech px-2.5 py-1 bg-cyber-dark border border-cyber-border text-gray-300">TẤT CẢ VỊ TRÍ</span>
-              </div>
-            </div>
-
-            <!-- CANVAS WHEEL CONTAINER -->
-            <div class="relative w-full max-w-[420px] aspect-square flex items-center justify-center my-2">
-              
-              <!-- Outer Glowing Metallic Tech Ring -->
-              <div class="absolute inset-0 rounded-full border border-neon-green/30 box-glow-green animate-pulse" style="animation-duration: 4s;"></div>
-              
-              <!-- Outer Radar Marks -->
-              <div class="absolute -inset-2 rounded-full border border-dashed border-cyber-cyan/20 animate-radar pointer-events-none"></div>
-
-              <!-- Top Wheel Pointer (Sci-Fi Laser Pointer) -->
-              <div class="absolute -top-3 z-30 flex flex-col items-center pointer-events-none">
-                <div class="w-0 h-0 border-l-[14px] border-l-transparent border-r-[14px] border-r-transparent border-t-[22px] border-t-neon-green drop-shadow-[0_0_12px_#00FF66]"></div>
-                <div class="w-1.5 h-6 bg-neon-green/80 blur-[1px] -mt-1 shadow-[0_0_8px_#00FF66]"></div>
-              </div>
-
-              <!-- HTML5 Interactive Wheel Canvas -->
-              <canvas id="wheel-canvas" width="600" height="600" class="w-full h-full cursor-pointer rounded-full transition-transform"></canvas>
-
-              <!-- Center Glowing Reactor Core (Hub) -->
-              <div id="wheel-center-hub" class="absolute z-20 w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-cyber-dark border-2 border-neon-green box-glow-green flex flex-col items-center justify-center p-2 text-center select-none pointer-events-none">
-                <div class="w-2.5 h-2.5 rounded-full bg-neon-green animate-ping mb-1"></div>
-                <span class="text-[10px] font-tech text-gray-400 uppercase tracking-tighter">AOV CORE</span>
-                <span id="wheel-center-number" class="text-xs sm:text-sm font-tech font-black text-white">129 HERO</span>
-              </div>
-            </div>
-
-            <!-- Controls & Big Neon Action Button -->
-            <div class="w-full mt-5 flex flex-col items-center gap-3">
-              
-              <button id="btn-spin" class="w-full sm:w-4/5 py-4 px-8 clip-chamfer-lg bg-neon-green text-black font-tech font-black text-lg sm:text-xl tracking-widest hover:bg-neon-emerald transition-all duration-200 transform active:scale-95 animate-neon-pulse flex items-center justify-center space-x-3 border-2 border-neon-green cursor-pointer">
-                <i class="fa-solid fa-atom text-xl animate-spin" style="animation-duration: 3s;"></i>
-                <span id="btn-spin-text">QUAY TƯỚNG (RANDOM.ORG)</span>
-                <i class="fa-solid fa-angles-right"></i>
-              </button>
-
-              <div class="flex items-center justify-between w-full text-xs font-tech text-gray-400 px-2 mt-1">
-                <div class="flex items-center gap-1.5">
-                  <span class="w-2 h-2 rounded-full bg-neon-green"></span>
-                  <span>NGẪU NHIÊN VẬT LÝ THỰC (ATMOSPHERIC NOISE)</span>
-                </div>
-                <div class="flex items-center gap-1.5">
-                  <i class="fa-solid fa-shield-virus text-cyber-cyan"></i>
-                  <span>FALLBACK: CRYPTO TRNG</span>
-                </div>
-              </div>
-
-            </div>
-
+          <!-- MODE SELECTOR TABS -->
+          <div class="w-full grid grid-cols-2 gap-2.5 mb-4">
+            <button id="tab-mode-wheel" class="py-2.5 px-3 clip-chamfer bg-cyber-dark text-gray-300 hover:text-white font-tech font-bold text-xs sm:text-sm tracking-wider flex items-center justify-center gap-2 border-2 border-cyber-border hover:border-cyber-cyan transition-all cursor-pointer">
+              <i class="fa-solid fa-atom"></i>
+              <span>VÒNG QUAY NÓN</span>
+            </button>
+            <button id="tab-mode-case" class="py-2.5 px-3 clip-chamfer bg-neon-green text-black font-tech font-bold text-xs sm:text-sm tracking-wider flex items-center justify-center gap-2 border-2 border-neon-green transition-all shadow-[0_0_12px_rgba(0,255,102,0.4)] cursor-pointer">
+              <i class="fa-solid fa-box-open text-black"></i>
+              <span>MỞ HÒM CS:GO</span>
+              <span class="text-[9px] px-1.5 py-0.5 rounded bg-black/30 text-black border border-black/40 font-bold ml-1">HOT</span>
+            </button>
           </div>
+
+          <!-- KHỐI 1: VÒNG QUAY NÓN CONTAINER -->
+          <div id="wheel-mode-container" class="w-full hidden">
+            <div class="w-full clip-chamfer-lg bg-cyber-dark border-2 border-cyber-border p-4 sm:p-6 hud-bracket relative overflow-hidden flex flex-col items-center">
+            
+              <!-- Atmospheric Radar Scan Overlay Background -->
+              <div class="absolute -top-32 -left-32 w-80 h-80 bg-neon-green/5 rounded-full blur-3xl pointer-events-none"></div>
+              <div class="absolute -bottom-32 -right-32 w-80 h-80 bg-cyber-cyan/5 rounded-full blur-3xl pointer-events-none"></div>
+
+              <!-- Header of Spin Module -->
+              <div class="w-full flex items-center justify-between border-b border-cyber-border pb-3 mb-4">
+                <div class="flex items-center space-x-2">
+                  <span class="w-2.5 h-2.5 bg-neon-green rounded-full animate-ping"></span>
+                  <h2 class="font-tech text-sm sm:text-base font-bold tracking-wider text-white">CYBER ROULETTE HUD</h2>
+                </div>
+                <div class="text-xs font-tech text-gray-400 flex items-center gap-2">
+                  <span>RADAR SENSORS: <span class="text-neon-green">ACTIVE</span></span>
+                </div>
+              </div>
+
+              <!-- Matrix Hero Decryptor Strip (Real-time cyber roll display) -->
+              <div class="w-full mb-4 p-3 bg-cyber-surface/90 border border-cyber-border clip-chamfer flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="flex items-center space-x-3 w-full sm:w-auto">
+                  <div class="w-11 h-11 rounded-lg border border-neon-green/60 overflow-hidden bg-cyber-dark flex-shrink-0 relative box-glow-green">
+                    <img id="decryptor-avatar" src="/heroes/1.jpg" alt="Hero Avatar" class="w-full h-full object-cover" onerror="handleAvatarError(this, 'Tamyn', 'Trợ Thủ', 1)" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-neon-green/20 to-transparent pointer-events-none"></div>
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="text-[10px] font-tech text-gray-400 tracking-wider">TARGET:</span>
+                      <span id="decryptor-id" class="text-xs font-tech font-bold px-1.5 py-0.2 bg-neon-green/20 text-neon-green border border-neon-green/40">ID #---</span>
+                    </div>
+                    <div id="decryptor-name" class="text-base sm:text-lg font-tech font-bold text-white tracking-widest neon-glow-green truncate max-w-[200px] sm:max-w-[280px]">SẴN SÀNG QUAY</div>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <span id="decryptor-role" class="text-xs font-tech px-2.5 py-1 bg-cyber-dark border border-cyber-border text-gray-300">TẤT CẢ VỊ TRÍ</span>
+                </div>
+              </div>
+
+              <!-- CANVAS WHEEL CONTAINER -->
+              <div class="relative w-full max-w-[420px] aspect-square flex items-center justify-center my-2">
+                
+                <!-- Outer Glowing Metallic Tech Ring -->
+                <div class="absolute inset-0 rounded-full border border-neon-green/30 box-glow-green animate-pulse" style="animation-duration: 4s;"></div>
+                
+                <!-- Outer Radar Marks -->
+                <div class="absolute -inset-2 rounded-full border border-dashed border-cyber-cyan/20 animate-radar pointer-events-none"></div>
+
+                <!-- Top Wheel Pointer (Sci-Fi Laser Pointer) -->
+                <div class="absolute -top-3 z-30 flex flex-col items-center pointer-events-none">
+                  <div class="w-0 h-0 border-l-[14px] border-l-transparent border-r-[14px] border-r-transparent border-t-[22px] border-t-neon-green drop-shadow-[0_0_12px_#00FF66]"></div>
+                  <div class="w-1.5 h-6 bg-neon-green/80 blur-[1px] -mt-1 shadow-[0_0_8px_#00FF66]"></div>
+                </div>
+
+                <!-- HTML5 Interactive Wheel Canvas -->
+                <canvas id="wheel-canvas" width="600" height="600" class="w-full h-full cursor-pointer rounded-full transition-transform"></canvas>
+
+                <!-- Center Glowing Reactor Core (Hub) -->
+                <div id="wheel-center-hub" class="absolute z-20 w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-cyber-dark border-2 border-neon-green box-glow-green flex flex-col items-center justify-center p-2 text-center select-none pointer-events-none">
+                  <div class="w-2.5 h-2.5 rounded-full bg-neon-green animate-ping mb-1"></div>
+                  <span class="text-[10px] font-tech text-gray-400 uppercase tracking-tighter">AOV CORE</span>
+                  <span id="wheel-center-number" class="text-xs sm:text-sm font-tech font-black text-white">129 HERO</span>
+                </div>
+              </div>
+
+              <!-- Controls & Big Neon Action Button -->
+              <div class="w-full mt-5 flex flex-col items-center gap-3">
+                
+                <button id="btn-spin" class="w-full sm:w-4/5 py-4 px-8 clip-chamfer-lg bg-neon-green text-black font-tech font-black text-lg sm:text-xl tracking-widest hover:bg-neon-emerald transition-all duration-200 transform active:scale-95 animate-neon-pulse flex items-center justify-center space-x-3 border-2 border-neon-green cursor-pointer">
+                  <i class="fa-solid fa-atom text-xl animate-spin" style="animation-duration: 3s;"></i>
+                  <span id="btn-spin-text">QUAY TƯỚNG (RANDOM.ORG)</span>
+                  <i class="fa-solid fa-angles-right"></i>
+                </button>
+
+                <div class="flex items-center justify-between w-full text-xs font-tech text-gray-400 px-2 mt-1">
+                  <div class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-neon-green"></span>
+                    <span>NGẪU NHIÊN VẬT LÝ THỰC (ATMOSPHERIC NOISE)</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <i class="fa-solid fa-shield-virus text-cyber-cyan"></i>
+                    <span>FALLBACK: CRYPTO TRNG</span>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+          <!-- END KHỐI 1: VÒNG QUAY NÓN -->
+
+          <!-- KHỐI 2: MỞ HÒM CS:GO CONTAINER -->
+          <div id="csgo-mode-container" class="w-full">
+            <div class="w-full clip-chamfer-lg bg-cyber-dark border-2 border-cyber-border p-4 sm:p-6 hud-bracket relative overflow-hidden flex flex-col items-center">
+              
+              <!-- Atmospheric Radar Scan Overlay Background -->
+              <div class="absolute -top-32 -left-32 w-80 h-80 bg-neon-green/5 rounded-full blur-3xl pointer-events-none"></div>
+              <div class="absolute -bottom-32 -right-32 w-80 h-80 bg-cyber-cyan/5 rounded-full blur-3xl pointer-events-none"></div>
+
+              <!-- Header of Crate Module -->
+              <div class="w-full flex items-center justify-between border-b border-cyber-border pb-3 mb-4">
+                <div class="flex items-center space-x-2">
+                  <span class="w-2.5 h-2.5 bg-neon-green rounded-full animate-ping"></span>
+                  <h2 class="font-tech text-sm sm:text-base font-bold tracking-wider text-white">CS:GO CASE UNBOXING PROTOCOL</h2>
+                </div>
+                <div class="text-xs font-tech text-gray-400 flex items-center gap-2">
+                  <span id="case-status-badge">STATUS: <span class="text-neon-green font-bold">READY TO UNBOX</span></span>
+                </div>
+              </div>
+
+              <!-- GIAI ĐOẠN 1 & 2: MÀN HÌNH HÒM VẬT PHẨM (CHEST DISPLAY & UNBOXING ANIMATION) -->
+              <div id="case-stage-chest" class="w-full flex flex-col items-center justify-center min-h-[390px] py-4 transition-all duration-500 relative">
+                
+                <!-- Screen Flash Overlay for explosive opening -->
+                <div id="case-screen-flash" class="absolute inset-0 bg-white/95 z-40 pointer-events-none opacity-0 rounded-lg"></div>
+
+                <!-- Vertical Laser Beam Eruption Element -->
+                <div id="case-laser-beam" class="absolute bottom-1/2 left-1/2 -translate-x-1/2 w-32 sm:w-44 h-[360px] bg-gradient-to-t from-neon-green via-cyber-cyan to-white opacity-0 z-30 pointer-events-none blur-sm"></div>
+
+                <!-- Sci-Fi Cyberpunk Chest Graphic Container (Khung Hòm Cyberpunk 3D kích thước lớn) -->
+                <div id="case-chest-box" class="relative w-72 sm:w-88 md:w-96 max-w-full flex flex-col items-center justify-center animate-chest-float cursor-pointer select-none my-3">
+                  
+                  <!-- Background Holo Hex Glow -->
+                  <div class="absolute inset-0 bg-neon-green/15 rounded-3xl blur-2xl pointer-events-none"></div>
+
+                  <!-- Chest Lid (Nắp Hòm 3D) -->
+                  <div id="chest-lid" class="w-full h-24 bg-gradient-to-b from-[#1E293B] via-[#0F172A] to-[#0A0E17] border-2 border-neon-green rounded-t-2xl clip-chamfer relative z-20 shadow-[0_0_25px_rgba(0,255,102,0.4)] flex items-center justify-between px-5 transition-transform">
+                    <!-- Left Hydraulic Piston Arm -->
+                    <div class="flex items-center space-x-1">
+                      <div class="w-3.5 h-10 bg-gray-700 border border-cyber-cyan rounded-sm flex flex-col justify-between py-1 items-center">
+                        <span class="w-1.5 h-1.5 rounded-full bg-cyber-cyan animate-pulse"></span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-neon-green"></span>
+                      </div>
+                      <div class="w-2 h-7 bg-gray-600 rounded-sm"></div>
+                    </div>
+                    
+                    <!-- Center Hologram Tech Emblem -->
+                    <div class="flex flex-col items-center">
+                      <div class="flex items-center gap-1.5 mb-1 px-3 py-0.5 rounded-full bg-neon-green/10 border border-neon-green/40">
+                        <span class="w-2 h-2 rounded-full bg-neon-green animate-ping"></span>
+                        <span class="text-[11px] font-tech text-neon-green tracking-widest font-bold">AOV SECURE CORE</span>
+                        <span class="w-2 h-2 rounded-full bg-neon-green animate-ping"></span>
+                      </div>
+                      <div class="text-xs sm:text-sm font-tech text-white font-bold tracking-wider">HÒM TƯỚNG LIÊN QUÂN MOBILE</div>
+                      <div class="text-[10px] font-tech text-cyber-cyan tracking-widest">TIÊU CHUẨN HIẾM: COVERT / CLASSIFIED</div>
+                    </div>
+
+                    <!-- Right Hydraulic Piston Arm -->
+                    <div class="flex items-center space-x-1">
+                      <div class="w-2 h-7 bg-gray-600 rounded-sm"></div>
+                      <div class="w-3.5 h-10 bg-gray-700 border border-cyber-cyan rounded-sm flex flex-col justify-between py-1 items-center">
+                        <span class="w-1.5 h-1.5 rounded-full bg-cyber-cyan animate-pulse"></span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-neon-green"></span>
+                      </div>
+                    </div>
+
+                    <!-- Metallic Lid Seam / Laser Strip -->
+                    <div class="absolute bottom-0 inset-x-4 h-2 bg-gradient-to-r from-cyber-cyan via-neon-green to-cyber-cyan shadow-[0_0_12px_#00FF66]"></div>
+                  </div>
+
+                  <!-- Chest Body / Chamber (Thân Hòm 3D) -->
+                  <div id="chest-body" class="w-full h-36 sm:h-40 bg-gradient-to-b from-[#0F172A] via-[#121A2B] to-[#0A0E17] border-2 border-t-0 border-neon-green rounded-b-2xl clip-chamfer relative z-10 shadow-[inset_0_0_35px_rgba(0,255,102,0.25)] flex flex-col items-center justify-center p-4">
+                    
+                    <!-- Carbon Fiber Texture Grid -->
+                    <div class="absolute inset-0 bg-[radial-gradient(#00FF66_1.5px,transparent_1.5px)] [background-size:14px_14px] opacity-15 pointer-events-none"></div>
+
+                    <!-- Armor Corner Rivets -->
+                    <div class="absolute top-2 left-3 w-2 h-2 rounded-full bg-neon-green/60 shadow-[0_0_6px_#00FF66]"></div>
+                    <div class="absolute top-2 right-3 w-2 h-2 rounded-full bg-neon-green/60 shadow-[0_0_6px_#00FF66]"></div>
+                    <div class="absolute bottom-3 left-3 w-2 h-2 rounded-full bg-neon-green/60 shadow-[0_0_6px_#00FF66]"></div>
+                    <div class="absolute bottom-3 right-3 w-2 h-2 rounded-full bg-neon-green/60 shadow-[0_0_6px_#00FF66]"></div>
+
+                    <!-- Glowing Reactor Core / AOV Emblem -->
+                    <div class="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-neon-green bg-cyber-dark/95 flex items-center justify-center box-glow-green shadow-[0_0_20px_#00FF66]">
+                      <i class="fa-solid fa-atom text-2xl sm:text-3xl text-neon-green animate-spin" style="animation-duration: 6s;"></i>
+                      <div class="absolute -inset-1.5 rounded-full border border-dashed border-cyber-cyan/50 animate-radar pointer-events-none"></div>
+                    </div>
+
+                    <!-- Status Tech Text -->
+                    <div class="mt-3 text-xs font-tech text-gray-200 tracking-wider flex items-center gap-2 z-10">
+                      <span class="text-cyber-cyan font-bold">CRATE LV.5</span>
+                      <span class="text-gray-500">&bull;</span>
+                      <span class="text-neon-green font-bold">129 TƯỚNG SẴN SÀNG</span>
+                      <span class="text-gray-500">&bull;</span>
+                      <span class="text-yellow-400 font-bold">100% RANDOM.ORG</span>
+                    </div>
+
+                    <!-- Danger Hazard Bottom Stripes -->
+                    <div class="absolute bottom-1 inset-x-6 h-1.5 bg-gradient-to-r from-neon-green/40 via-yellow-400/50 to-neon-green/40"></div>
+                  </div>
+
+                  <!-- Chest Base Drop Shadow -->
+                  <div class="w-64 sm:w-80 h-5 bg-neon-green/25 rounded-full blur-lg mt-3"></div>
+                </div>
+
+                <!-- Unboxing Action Button (Nút Mở Hòm Lớn với Neon Pulse) -->
+                <div class="w-full sm:w-4/5 mt-5 flex flex-col items-center gap-2">
+                  <button id="btn-open-case" class="w-full py-4 px-8 clip-chamfer-lg bg-neon-green text-black font-tech font-black text-lg sm:text-xl tracking-widest hover:bg-neon-emerald transition-all duration-200 transform active:scale-95 animate-neon-pulse flex items-center justify-center space-x-3 border-2 border-neon-green cursor-pointer shadow-[0_0_20px_rgba(0,255,102,0.4)]">
+                    <i class="fa-solid fa-box-open text-2xl"></i>
+                    <span id="btn-open-case-text">MỞ HÒM (RANDOM.ORG)</span>
+                    <i class="fa-solid fa-angles-right"></i>
+                  </button>
+                  <div class="text-[11px] font-tech text-gray-400 flex items-center gap-2 mt-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-neon-green"></span>
+                    <span>KHÍ QUYỂN RANDOM.ORG &bull; TRƯỢT DẢI CS:GO CHÍNH XÁC THẺ SỐ #42</span>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- GIAI ĐOẠN 3: DẢI CUỘN NGANG CS:GO (HORIZONTAL REEL VIEWPORT) -->
+              <div id="case-stage-reel" class="w-full flex flex-col items-center justify-center py-2 transition-all duration-500 hidden opacity-0">
+                
+                <!-- Reel Sub-header -->
+                <div class="w-full flex items-center justify-between mb-3 px-1 text-xs font-tech">
+                  <div class="flex items-center gap-2 text-white font-bold">
+                    <i class="fa-solid fa-arrows-left-right text-neon-green"></i>
+                    <span>DẢI QUAY VẬT PHẨM CS:GO (50 THẺ TƯỚNG)</span>
+                  </div>
+                  <div class="text-neon-pink font-bold flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-neon-pink animate-ping"></span>
+                    <span>MỤC TIÊU: THẺ #42</span>
+                  </div>
+                </div>
+
+                <!-- Horizontal Reel Frame -->
+                <div class="w-full p-2 bg-cyber-surface/90 border-2 border-cyber-border clip-chamfer relative">
+                  
+                  <!-- Crosshair Marker (Kim chỉ tâm ở chính giữa) -->
+                  <div class="csgo-crosshair"></div>
+
+                  <!-- Viewport with Side Fade Gradients -->
+                  <div id="case-reel-viewport" class="csgo-reel-viewport h-[215px] flex items-center">
+                    <!-- The Scroll Track populated with 50 cards -->
+                    <div id="case-reel-track" class="csgo-reel-track items-center py-2">
+                      <!-- Populated dynamically by JS -->
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- Reel Controls / Reset Button -->
+                <div class="w-full mt-4 flex items-center justify-between">
+                  <div id="case-reel-status" class="text-xs font-tech text-gray-300">
+                    <span class="text-neon-green font-bold">ĐANG TRƯỢT DẢI THẺ...</span>
+                  </div>
+                  <button id="btn-case-reset" class="py-2.5 px-5 clip-chamfer bg-cyber-surface border border-cyber-border hover:border-neon-green text-white hover:text-neon-green font-tech font-bold text-xs tracking-wider transition-all flex items-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    <span>MỞ HÒM TIẾP</span>
+                  </button>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+          <!-- END KHỐI 2: MỞ HÒM CS:GO -->
 
           <!-- Entropy & API Verification Info Box -->
           <div class="w-full mt-4 clip-chamfer bg-cyber-dark border border-cyber-border p-4 text-xs font-tech text-gray-400">
@@ -935,6 +1257,8 @@
 
     // 2. STATE QUẢN LÝ ỨNG DỤNG
     const state = {
+      activeMode: "case", // "case" (mặc định) | "wheel"
+      caseStage: "closed", // "closed" | "opening" | "rolling" | "finished"
       // Set chứa các ID tướng đang được tích chọn (mặc định chọn đủ 129 tướng)
       activeHeroIds: new Set(HERO_LIST.map(h => h.id)),
       currentRoleFilter: "ALL",
@@ -1003,6 +1327,62 @@
           gain.connect(this.ctx.destination);
           osc.start();
           osc.stop(this.ctx.currentTime + 0.4);
+        } catch (e) {}
+      }
+
+      playChestUnlock() {
+        if (!state.soundEnabled) return;
+        this.initContext();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "sawtooth";
+          osc.frequency.setValueAtTime(320, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(75, this.ctx.currentTime + 0.35);
+          gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.35);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.35);
+        } catch (e) {}
+      }
+
+      playChestOpenBurst() {
+        if (!state.soundEnabled) return;
+        this.initContext();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(80, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(580, this.ctx.currentTime + 0.45);
+          gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.65);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.65);
+        } catch (e) {}
+      }
+
+      playReelTick(pitchOffset = 0) {
+        if (!state.soundEnabled) return;
+        this.initContext();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(1150 + pitchOffset, this.ctx.currentTime);
+          gain.gain.setValueAtTime(0.065, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.025);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.025);
         } catch (e) {}
       }
 
@@ -1472,6 +1852,16 @@
       document.getElementById("modal-winner-time").textContent = timeStr;
       document.getElementById("modal-winner-candidates").textContent = `${totalCandidates} Tướng`;
 
+      // Cập nhật nhãn nút quay tiếp tùy theo chế độ
+      const spinAgainBtn = document.getElementById("btn-modal-spin-again");
+      if (spinAgainBtn) {
+        if (state.activeMode === "case") {
+          spinAgainBtn.innerHTML = `<i class="fa-solid fa-box-open mr-1"></i> MỞ HÒM TIẾP`;
+        } else {
+          spinAgainBtn.innerHTML = `<i class="fa-solid fa-rotate-right mr-1"></i> QUAY TIẾP`;
+        }
+      }
+
       // Cập nhật Hologram Avatar với hiệu ứng tải an toàn
       const modalAvatar = document.getElementById("modal-winner-avatar");
       if (modalAvatar) {
@@ -1495,6 +1885,332 @@
       setTimeout(() => {
         modalWinner.classList.add("hidden");
       }, 250);
+    }
+
+    // =========================================================================
+    // 9.5. CHẾ ĐỘ MỞ HÒM CS:GO (SCI-FI CHEST UNBOXING & HORIZONTAL REEL)
+    // =========================================================================
+    let reelAnimFrameId = null;
+
+    function switchMode(mode) {
+      if (state.isSpinning) return;
+      state.activeMode = mode;
+      
+      const tabWheel = document.getElementById("tab-mode-wheel");
+      const tabCase = document.getElementById("tab-mode-case");
+      const containerWheel = document.getElementById("wheel-mode-container");
+      const containerCase = document.getElementById("csgo-mode-container");
+
+      if (!tabWheel || !tabCase || !containerWheel || !containerCase) return;
+
+      const activeTabClass = "py-2.5 px-3 clip-chamfer bg-neon-green text-black font-tech font-bold text-xs sm:text-sm tracking-wider flex items-center justify-center gap-2 border-2 border-neon-green transition-all shadow-[0_0_12px_rgba(0,255,102,0.4)] cursor-pointer";
+      const inactiveTabClass = "py-2.5 px-3 clip-chamfer bg-cyber-dark text-gray-300 hover:text-white font-tech font-bold text-xs sm:text-sm tracking-wider flex items-center justify-center gap-2 border-2 border-cyber-border hover:border-cyber-cyan transition-all cursor-pointer";
+
+      if (mode === "wheel") {
+        tabWheel.className = activeTabClass;
+        tabCase.className = inactiveTabClass;
+        containerWheel.classList.remove("hidden");
+        containerCase.classList.add("hidden");
+        requestAnimationFrame(() => {
+          drawWheel();
+        });
+      } else {
+        tabCase.className = activeTabClass;
+        tabWheel.className = inactiveTabClass;
+        containerCase.classList.remove("hidden");
+        containerWheel.classList.add("hidden");
+        resetCaseToClosed();
+      }
+    }
+
+    function resetCaseToClosed() {
+      if (reelAnimFrameId) {
+        cancelAnimationFrame(reelAnimFrameId);
+        reelAnimFrameId = null;
+      }
+      state.isSpinning = false;
+      state.caseStage = "closed";
+
+      const stageChest = document.getElementById("case-stage-chest");
+      const stageReel = document.getElementById("case-stage-reel");
+      const chestBox = document.getElementById("case-chest-box");
+      const chestLid = document.getElementById("chest-lid");
+      const screenFlash = document.getElementById("case-screen-flash");
+      const laserBeam = document.getElementById("case-laser-beam");
+      const btnOpen = document.getElementById("btn-open-case");
+      const btnOpenText = document.getElementById("btn-open-case-text");
+      const statusBadge = document.getElementById("case-status-badge");
+      const reelTrack = document.getElementById("case-reel-track");
+
+      // Reset các trạng thái giao diện hiển thị
+      stageChest.classList.remove("hidden", "opacity-0", "pointer-events-none", "scale-95");
+      stageChest.classList.add("opacity-100", "scale-100");
+
+      stageReel.classList.add("hidden", "opacity-0");
+      stageReel.classList.remove("opacity-100");
+
+      chestBox.classList.remove("animate-chest-rumble");
+      chestBox.classList.add("animate-chest-float");
+
+      chestLid.classList.remove("animate-lid-lift");
+      chestLid.style.transform = "";
+
+      screenFlash.classList.remove("animate-screen-flash");
+      laserBeam.classList.remove("animate-laser-burst");
+
+      btnOpen.classList.remove("opacity-70", "cursor-not-allowed");
+      btnOpen.classList.add("animate-neon-pulse");
+      btnOpen.removeAttribute("disabled");
+      btnOpenText.textContent = "MỞ HÒM (RANDOM.ORG)";
+
+      statusBadge.innerHTML = `STATUS: <span class="text-neon-green font-bold">READY TO UNBOX</span>`;
+      reelTrack.style.transform = "translateX(0px)";
+      reelTrack.innerHTML = "";
+    }
+
+    function getRoleRarity(role) {
+      switch (role) {
+        case "Sát Thủ":
+          return { tier: "COVERT", color: "#FFE600", border: "border-yellow-400", glow: "shadow-[0_0_12px_rgba(255,230,0,0.4)]", text: "text-yellow-400", bg: "bg-yellow-400/20" };
+        case "Pháp Sư":
+          return { tier: "CLASSIFIED", color: "#FF007F", border: "border-neon-pink", glow: "shadow-[0_0_12px_rgba(255,0,127,0.4)]", text: "text-neon-pink", bg: "bg-neon-pink/20" };
+        case "Xạ Thủ":
+          return { tier: "RESTRICTED", color: "#FF2E54", border: "border-neon-red", glow: "shadow-[0_0_12px_rgba(255,46,84,0.4)]", text: "text-neon-red", bg: "bg-neon-red/20" };
+        case "Đấu Sĩ":
+          return { tier: "MIL-SPEC", color: "#00E5FF", border: "border-cyber-cyan", glow: "shadow-[0_0_12px_rgba(0,229,255,0.4)]", text: "text-cyber-cyan", bg: "bg-cyber-cyan/20" };
+        case "Trợ Thủ":
+          return { tier: "INDUSTRIAL", color: "#00FF66", border: "border-neon-green", glow: "shadow-[0_0_12px_rgba(0,255,102,0.4)]", text: "text-neon-green", bg: "bg-neon-green/20" };
+        case "Đỡ Đòn":
+          return { tier: "HEAVY", color: "#A855F7", border: "border-purple-500", glow: "shadow-[0_0_12px_rgba(168,85,247,0.4)]", text: "text-purple-400", bg: "bg-purple-500/20" };
+        default:
+          return { tier: "STANDARD", color: "#00FF66", border: "border-neon-green", glow: "shadow-[0_0_12px_rgba(0,255,102,0.4)]", text: "text-neon-green", bg: "bg-neon-green/20" };
+      }
+    }
+
+    async function openCsgoCase() {
+      if (state.isSpinning) return;
+
+      const activeHeroes = getActiveHeroes();
+      if (activeHeroes.length === 0) {
+        showToast("VUI LÒNG CHỌN ÍT NHẤT 1 TƯỚNG ĐỂ MỞ HÒM!", "error");
+        return;
+      }
+
+      state.isSpinning = true;
+      state.caseStage = "opening";
+
+      const btnOpen = document.getElementById("btn-open-case");
+      const btnOpenText = document.getElementById("btn-open-case-text");
+      const statusBadge = document.getElementById("case-status-badge");
+      const chestBox = document.getElementById("case-chest-box");
+      const chestLid = document.getElementById("chest-lid");
+      const screenFlash = document.getElementById("case-screen-flash");
+      const laserBeam = document.getElementById("case-laser-beam");
+
+      btnOpen.classList.remove("animate-neon-pulse");
+      btnOpen.classList.add("opacity-70", "cursor-not-allowed");
+      btnOpen.setAttribute("disabled", "true");
+      btnOpenText.textContent = "ĐANG KẾT NỐI KHÍ QUYỂN RANDOM.ORG...";
+      statusBadge.innerHTML = `STATUS: <span class="text-yellow-400 font-bold animate-pulse">CONNECTING RANDOM.ORG...</span>`;
+
+      // 1. Khởi động lấy số ngẫu nhiên từ Random.org
+      const randomPromise = fetchAbsoluteRandomNumber(1, activeHeroes.length);
+
+      // 2. Kích hoạt âm thanh mở khóa chốt thủy lực
+      sound.playChestUnlock();
+
+      // Rung lắc hòm cơ học
+      chestBox.classList.remove("animate-chest-float");
+      chestBox.classList.add("animate-chest-rumble");
+
+      // 3. Sau 250ms: Nắp hòm bật lên, tia laser và ánh sáng bùng nổ
+      setTimeout(() => {
+        chestLid.classList.add("animate-lid-lift");
+        laserBeam.classList.add("animate-laser-burst");
+        screenFlash.classList.add("animate-screen-flash");
+        sound.playChestOpenBurst();
+      }, 250);
+
+      // Đợi cả 2 điều kiện: Random.org có kết quả và Animation mở nắp đủ 1.2 giây
+      const [randomResult] = await Promise.all([
+        randomPromise,
+        new Promise(resolve => setTimeout(resolve, 1200))
+      ]);
+
+      // Tra cứu tướng trúng thưởng
+      const winnerIndex = randomResult.number - 1;
+      const winnerHero = activeHeroes[winnerIndex];
+
+      // Cập nhật Telemetry HUD
+      const hudAlgorithm = document.getElementById("hud-algorithm-badge");
+      const hudLatency = document.getElementById("hud-latency");
+      hudAlgorithm.textContent = randomResult.source.includes("RANDOM.ORG") ? "RANDOM.ORG (KHÍ QUYỂN)" : "CRYPTO TRNG (DỰ PHÒNG)";
+      hudLatency.innerHTML = `${randomResult.latency} <span class="text-xs text-gray-400 font-normal">ms</span>`;
+
+      // 4. Chuyển sang Giai đoạn 3: Cuộn dải thẻ tướng CS:GO
+      transitionToReelScroll(winnerHero, randomResult, activeHeroes);
+    }
+
+    function transitionToReelScroll(winnerHero, result, activeHeroes) {
+      state.caseStage = "rolling";
+
+      const stageChest = document.getElementById("case-stage-chest");
+      const stageReel = document.getElementById("case-stage-reel");
+      const reelTrack = document.getElementById("case-reel-track");
+
+      // Fade out hòm & Fade in dải cuộn
+      stageChest.classList.add("opacity-0", "scale-95", "pointer-events-none");
+      setTimeout(() => {
+        stageChest.classList.add("hidden");
+        stageReel.classList.remove("hidden");
+        // Kích hoạt reflow trình duyệt
+        void stageReel.offsetWidth;
+        stageReel.classList.remove("opacity-0");
+        stageReel.classList.add("opacity-100");
+
+        // Tạo 50 thẻ tướng: vị trí số 42 (index 41) là winnerHero
+        const TOTAL_CARDS = 50;
+        const WINNER_POS = 41; // index 41 = thẻ số 42
+        const cardsData = [];
+
+        for (let i = 0; i < TOTAL_CARDS; i++) {
+          if (i === WINNER_POS) {
+            cardsData.push(winnerHero);
+          } else {
+            const randIdx = Math.floor(Math.random() * activeHeroes.length);
+            cardsData.push(activeHeroes[randIdx]);
+          }
+        }
+
+        // Render 50 thẻ vào reel track
+        reelTrack.innerHTML = cardsData.map((hero, idx) => {
+          const rarity = getRoleRarity(hero.role);
+          const isWinnerCard = (idx === WINNER_POS);
+          const heroNameEscaped = hero.name.replace(/'/g, "\\'");
+          return `
+            <div id="reel-card-${idx}" class="reel-hero-card w-[140px] h-[195px] flex-shrink-0 bg-cyber-dark border-2 ${rarity.border} clip-chamfer flex flex-col justify-between p-2 relative overflow-hidden transition-all duration-300 ${rarity.glow}" data-index="${idx}" data-winner="${isWinnerCard}">
+              <!-- Top Header: Role & ID -->
+              <div class="flex items-center justify-between z-10">
+                <span class="text-[9px] font-tech font-bold px-1.5 py-0.5 rounded ${rarity.bg} ${rarity.text} border border-current">
+                  ${hero.role}
+                </span>
+                <span class="text-[10px] font-tech text-gray-400 font-bold">#${hero.id}</span>
+              </div>
+
+              <!-- Card Center Avatar Frame -->
+              <div class="relative w-full h-[105px] rounded border border-cyber-border overflow-hidden bg-cyber-surface my-1 flex items-center justify-center">
+                <img 
+                  src="${hero.avatar || `/heroes/${hero.id}.jpg`}" 
+                  alt="${hero.name}" 
+                  class="w-full h-full object-cover transform hover:scale-105 transition-transform duration-200"
+                  onerror="handleAvatarError(this, '${heroNameEscaped}', '${hero.role}', ${hero.id})"
+                />
+                <div class="absolute inset-0 bg-gradient-to-t from-cyber-dark/80 via-transparent to-transparent pointer-events-none"></div>
+              </div>
+
+              <!-- Bottom Hero Name & Rarity Tier -->
+              <div class="z-10 text-center">
+                <div class="text-xs font-tech font-bold text-white tracking-wider truncate uppercase">${hero.name}</div>
+                <div class="text-[9px] font-tech tracking-widest ${rarity.text} uppercase font-bold">${rarity.tier}</div>
+              </div>
+
+              <!-- Bottom Color Stripe -->
+              <div class="absolute bottom-0 inset-x-0 h-1 ${rarity.border.replace('border-', 'bg-')}"></div>
+            </div>
+          `;
+        }).join('');
+
+        // 5. Bắt đầu cuộn Reel với hiệu ứng giảm tốc (CS:GO Ease-Out Deceleration)
+        startReelPhysics(WINNER_POS, winnerHero, result);
+      }, 300);
+    }
+
+    function startReelPhysics(winnerPos, winnerHero, result) {
+      const reelTrack = document.getElementById("case-reel-track");
+      const reelViewport = document.getElementById("case-reel-viewport");
+      const reelStatus = document.getElementById("case-reel-status");
+
+      const cardWidth = 140;
+      const cardGap = 12;
+      const cardStep = cardWidth + cardGap; // 152px
+      const viewportWidth = reelViewport.offsetWidth;
+
+      // Tâm thẻ thắng số 42 (vị trí index 41)
+      const winnerCenter = (winnerPos * cardStep) + (cardWidth / 2);
+      // Jitter hữu cơ nhẹ trong lòng thẻ (+- 24px từ tâm)
+      const organicJitter = (Math.random() - 0.5) * 48;
+      const targetX = winnerCenter - (viewportWidth / 2) + organicJitter;
+
+      const durationMs = 4000; // 4.0 giây trượt dải thẻ CS:GO
+      const startTime = performance.now();
+      let lastTickCardIndex = -1;
+
+      reelStatus.innerHTML = `<span class="text-cyber-cyan font-bold flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-cyber-cyan animate-ping"></span> ĐANG TRƯỢT DẢI CS:GO...</span>`;
+
+      function step(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / durationMs, 1);
+
+        // Quintic Ease-Out curve cho cảm giác phanh trượt thực tế CS:GO
+        const easeOutProgress = 1 - Math.pow(1 - progress, 5);
+        const currentX = targetX * easeOutProgress;
+
+        reelTrack.style.transform = `translateX(-${currentX}px)`;
+
+        // Tính thẻ hiện đang đi qua kim chỉ tâm để phát âm thanh Tick gõ
+        const needleCenterInTrack = currentX + (viewportWidth / 2);
+        const currentPassingIndex = Math.floor(needleCenterInTrack / cardStep);
+
+        if (currentPassingIndex !== lastTickCardIndex && currentPassingIndex >= 0 && currentPassingIndex < 50) {
+          lastTickCardIndex = currentPassingIndex;
+          sound.playReelTick();
+        }
+
+        if (progress < 1) {
+          reelAnimFrameId = requestAnimationFrame(step);
+        } else {
+          // KẾT THÚC DẢI TRƯỢT
+          reelTrack.style.transform = `translateX(-${targetX}px)`;
+          state.isSpinning = false;
+          state.caseStage = "finished";
+
+          // Làm nổi bật thẻ chiến thắng
+          const winnerCardEl = document.getElementById(`reel-card-${winnerPos}`);
+          if (winnerCardEl) {
+            winnerCardEl.classList.add("scale-105", "z-20", "border-neon-green", "box-glow-green");
+            winnerCardEl.style.boxShadow = "0 0 25px #00FF66, inset 0 0 15px rgba(0,255,102,0.4)";
+          }
+
+          reelStatus.innerHTML = `<span class="text-neon-green font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-neon-green"></i> ĐÃ MỞ: ${winnerHero.name.toUpperCase()} (#${winnerHero.id})</span>`;
+
+          // Âm thanh chiến thắng & pháo hoa
+          sound.playWinChord();
+          triggerCyberConfetti();
+
+          // Lưu lịch sử
+          const nowFormatted = new Date();
+          const timeStr = `${String(nowFormatted.getHours()).padStart(2, '0')}:${String(nowFormatted.getMinutes()).padStart(2, '0')}:${String(nowFormatted.getSeconds()).padStart(2, '0')} ${String(nowFormatted.getDate()).padStart(2, '0')}/${String(nowFormatted.getMonth() + 1).padStart(2, '0')}/${nowFormatted.getFullYear()}`;
+
+          const spinRecord = {
+            id: Date.now(),
+            heroId: winnerHero.id,
+            heroName: winnerHero.name,
+            role: winnerHero.role,
+            avatar: winnerHero.avatar,
+            source: `${result.source} [HÒM CS:GO]`,
+            time: timeStr
+          };
+
+          saveSpinRecord(spinRecord);
+
+          // Hiển thị Winner Modal sau 600ms để người dùng kịp chiêm ngưỡng vị trí kim dừng
+          setTimeout(() => {
+            showWinnerModal(winnerHero, result, timeStr, getActiveHeroes().length);
+          }, 600);
+        }
+      }
+
+      reelAnimFrameId = requestAnimationFrame(step);
     }
 
     // 10. QUẢN LÝ LỊCH SỬ LƯỢT QUAY (SPIN HISTORY)
@@ -1715,11 +2431,13 @@
 
     // 14. KHỞI TẠO VÀ GẮN SỰ KIỆN TOÀN TRANG
     document.addEventListener("DOMContentLoaded", () => {
-      // Khởi tạo Canvas Wheel
+      // Khởi tạo Canvas Wheel & CS:GO Mode
       drawWheel();
       renderHeroesCheckboxList();
       renderHistoryList();
       initFirebaseIntegration();
+      // Kích hoạt mặc định Tab Mở Hòm CS:GO
+      switchMode("case");
 
       // Nút Quay
       document.getElementById("btn-spin").addEventListener("click", spinRoulette);
@@ -1796,8 +2514,21 @@
       document.getElementById("btn-modal-copy").addEventListener("click", copyWinnerResult);
       document.getElementById("btn-modal-spin-again").addEventListener("click", () => {
         closeWinnerModal();
-        setTimeout(spinRoulette, 300);
+        if (state.activeMode === "case") {
+          resetCaseToClosed();
+        } else {
+          setTimeout(spinRoulette, 300);
+        }
       });
+
+      // Mode Selector Tabs
+      document.getElementById("tab-mode-wheel").addEventListener("click", () => switchMode("wheel"));
+      document.getElementById("tab-mode-case").addEventListener("click", () => switchMode("case"));
+
+      // CS:GO Crate Controls
+      document.getElementById("btn-open-case").addEventListener("click", openCsgoCase);
+      document.getElementById("case-chest-box").addEventListener("click", openCsgoCase);
+      document.getElementById("btn-case-reset").addEventListener("click", resetCaseToClosed);
 
       // Click ra ngoài để đóng modal
       modalWinner.addEventListener("click", (e) => {
