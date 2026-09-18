@@ -707,7 +707,7 @@
                   </button>
                   <div class="text-[11px] font-tech text-gray-400 flex items-center gap-2 mt-1">
                     <span class="w-1.5 h-1.5 rounded-full bg-neon-green"></span>
-                    <span>KHÍ QUYỂN RANDOM.ORG &bull; TRƯỢT DẢI CS:GO CHÍNH XÁC THẺ SỐ #42</span>
+                    <span>KHÍ QUYỂN RANDOM.ORG &bull; TRƯỢT DẢI CS:GO CHÍNH XÁC (15 GIÂY)</span>
                   </div>
                 </div>
 
@@ -720,11 +720,7 @@
                 <div class="w-full flex items-center justify-between mb-3 px-1 text-xs font-tech">
                   <div class="flex items-center gap-2 text-white font-bold">
                     <i class="fa-solid fa-arrows-left-right text-neon-green"></i>
-                    <span>DẢI QUAY VẬT PHẨM CS:GO (50 THẺ TƯỚNG)</span>
-                  </div>
-                  <div class="text-neon-pink font-bold flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-neon-pink animate-ping"></span>
-                    <span>MỤC TIÊU: THẺ #42</span>
+                    <span>DẢI QUAY VẬT PHẨM CS:GO (140 THẺ TƯỚNG &bull; 15 GIÂY)</span>
                   </div>
                 </div>
 
@@ -1368,7 +1364,7 @@
         } catch (e) {}
       }
 
-      playReelTick(pitchOffset = 0) {
+      playReelTick(velocity = 1) {
         if (!state.soundEnabled) return;
         this.initContext();
         if (!this.ctx) return;
@@ -1376,13 +1372,21 @@
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
           osc.type = "triangle";
-          osc.frequency.setValueAtTime(1150 + pitchOffset, this.ctx.currentTime);
-          gain.gain.setValueAtTime(0.065, this.ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.025);
+          // Tần số âm thanh và độ đanh thay đổi đồng bộ theo vận tốc thực tế v(t):
+          // Khi lướt cực nhanh: âm thanh lách cách cao, sắc (1200Hz - 1380Hz)
+          // Khi hãm tốc và trôi chậm ở 2-3s cuối: âm trầm dần, nảy cơ học đanh (720Hz - 880Hz)
+          const clampedV = Math.max(0.05, Math.min(velocity, 5));
+          const freq = 720 + (clampedV / 5) * 550;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          
+          // Âm lượng tự nhiên: bò chậm thì âm nảy rõ nhưng êm dịu, không chát tai
+          const vol = 0.045 + Math.min(0.04, clampedV * 0.012);
+          gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.022);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
           osc.start();
-          osc.stop(this.ctx.currentTime + 0.025);
+          osc.stop(this.ctx.currentTime + 0.022);
         } catch (e) {}
       }
 
@@ -2068,9 +2072,9 @@
         stageReel.classList.remove("opacity-0");
         stageReel.classList.add("opacity-100");
 
-        // Tạo 50 thẻ tướng: vị trí số 42 (index 41) là winnerHero
-        const TOTAL_CARDS = 50;
-        const WINNER_POS = 41; // index 41 = thẻ số 42
+        // Tạo 140 thẻ tướng: vị trí số 110 (index 109) là winnerHero
+        const TOTAL_CARDS = 140;
+        const WINNER_POS = 109; // index 109 = thẻ số 110
         const cardsData = [];
 
         for (let i = 0; i < TOTAL_CARDS; i++) {
@@ -2082,7 +2086,7 @@
           }
         }
 
-        // Render 50 thẻ vào reel track
+        // Render 140 thẻ vào reel track
         reelTrack.innerHTML = cardsData.map((hero, idx) => {
           const rarity = getRoleRarity(hero.role);
           const isWinnerCard = (idx === WINNER_POS);
@@ -2120,10 +2124,68 @@
           `;
         }).join('');
 
-        // 5. Bắt đầu cuộn Reel với hiệu ứng giảm tốc (CS:GO Ease-Out Deceleration)
+        // 5. Bắt đầu cuộn Reel với hiệu ứng ma sát tự nhiên 15 GIÂY (CS:GO Suspense Physics)
         startReelPhysics(WINNER_POS, winnerHero, result);
       }, 300);
     }
+
+    // THUẬT TOÁN ĐỘNG LỰC HỌC VẬT LÝ MA SÁT TỰ NHIÊN (15 GIÂY - CONTINUOUS FRICTION DECAY)
+    // 1. Tạo hàm Cubic Bezier chuẩn (0.05, 0.65, 0.12, 1.0) mô phỏng ma sát động học thực tế 15 giây:
+    //    - 0s – 6s (t: 0 -> 0.40): Lướt với vận tốc cực đại xé gió qua ~80% dải thẻ.
+    //    - 6s – 12s (t: 0.40 -> 0.80): Ma sát hãm đà rõ rệt, dải thẻ chậm dần đều, thẻ tướng lộ rõ nét.
+    //    - 12s – 15s (t: 0.80 -> 1.00, 3s cuối): "Bò" siêu chậm do quán tính cạn dần, tiếp cận v = 0 êm ái.
+    //    - Đạo hàm tại điểm dừng t=1 triệt tiêu tuyệt đối (v=0), loại bỏ 100% hiện tượng snap/nảy/khựng thẻ.
+    function createCubicBezier(p1x, p1y, p2x, p2y) {
+      const cx = 3 * p1x;
+      const bx = 3 * (p2x - p1x) - cx;
+      const ax = 1 - cx - bx;
+
+      const cy = 3 * p1y;
+      const by = 3 * (p2y - p1y) - cy;
+      const ay = 1 - cy - by;
+
+      function sampleX(t) {
+        return ((ax * t + bx) * t + cx) * t;
+      }
+      function sampleY(t) {
+        return ((ay * t + by) * t + cy) * t;
+      }
+      function sampleDerivativeX(t) {
+        return (3 * ax * t + 2 * bx) * t + cx;
+      }
+
+      function solveCurveX(x) {
+        let t = x;
+        // Newton-Raphson 8 bước
+        for (let i = 0; i < 8; i++) {
+          const xEst = sampleX(t) - x;
+          if (Math.abs(xEst) < 1e-7) return t;
+          const d = sampleDerivativeX(t);
+          if (Math.abs(d) < 1e-7) break;
+          t -= xEst / d;
+        }
+        // Bisection dự phòng
+        let t0 = 0, t1 = 1;
+        t = x;
+        while (t0 < t1) {
+          const xEst = sampleX(t);
+          if (Math.abs(xEst - x) < 1e-6) return t;
+          if (x > xEst) t0 = t;
+          else t1 = t;
+          t = (t1 + t0) * 0.5;
+          if (t1 - t0 < 1e-7) break;
+        }
+        return t;
+      }
+
+      return function(x) {
+        if (x <= 0) return 0;
+        if (x >= 1) return 1;
+        return sampleY(solveCurveX(x));
+      };
+    }
+
+    const csgoFrictionEase = createCubicBezier(0.05, 0.65, 0.12, 1.0);
 
     function startReelPhysics(winnerPos, winnerHero, result) {
       const reelTrack = document.getElementById("case-reel-track");
@@ -2134,51 +2196,82 @@
       const cardGap = 12;
       const cardStep = cardWidth + cardGap; // 152px
       const viewportWidth = reelViewport.offsetWidth;
+      const TOTAL_CARDS = 140;
 
-      // Tâm thẻ thắng số 42 (vị trí index 41)
-      const winnerCenter = (winnerPos * cardStep) + (cardWidth / 2);
-      // Jitter hữu cơ nhẹ trong lòng thẻ (+- 24px từ tâm)
-      const organicJitter = (Math.random() - 0.5) * 48;
-      const targetX = winnerCenter - (viewportWidth / 2) + organicJitter;
+      // 1. TUÂN THỦ NGUYÊN TẮC TỰ NHIÊN - LOẠI BỎ THUẬT TOÁN SNAP-TO-CENTER:
+      // Điểm dừng cuối cùng của kim chỉ crosshair nằm NGẪU NHIÊN tự nhiên bên trong diện tích thẻ thắng #110
+      // (Dao động từ 15% đến 85% bề ngang thẻ: lúc lệch sang trái, lúc gần giữa, lúc lệch sang phải)
+      // Dải thẻ dừng tự do khi ma sát triệt tiêu hoàn toàn vận tốc (v = 0).
+      const randomLandingFraction = 0.15 + (Math.random() * 0.70);
+      const landingOffsetInCard = cardWidth * randomLandingFraction;
+      const finalNeedlePosInTrack = (winnerPos * cardStep) + landingOffsetInCard;
+      const targetX = finalNeedlePosInTrack - (viewportWidth / 2);
 
-      const durationMs = 4000; // 4.0 giây trượt dải thẻ CS:GO
+      const durationMs = 15000; // ĐÚNG 15 GIÂY (15000ms) TỔNG THỜI GIAN TRƯỢT
       const startTime = performance.now();
+      let lastFrameTime = startTime;
+      let lastX = 0;
       let lastTickCardIndex = -1;
+      let lastTickTime = 0;
 
-      reelStatus.innerHTML = `<span class="text-cyber-cyan font-bold flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-cyber-cyan animate-ping"></span> ĐANG TRƯỢT DẢI CS:GO...</span>`;
+      reelStatus.innerHTML = `<span class="text-cyber-cyan font-bold flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-cyber-cyan animate-ping"></span> ĐANG TRƯỢT VẬN TỐC CỰC ĐẠI (15 GIÂY)...</span>`;
 
       function step(now) {
         const elapsed = now - startTime;
         const progress = Math.min(elapsed / durationMs, 1);
 
-        // Quintic Ease-Out curve cho cảm giác phanh trượt thực tế CS:GO
-        const easeOutProgress = 1 - Math.pow(1 - progress, 5);
-        const currentX = targetX * easeOutProgress;
+        // Chuyển động suy giảm vận tốc ma sát liên tục (15s Smooth Continuous Decay)
+        const easeProgress = csgoFrictionEase(progress);
+        const currentX = targetX * easeProgress;
 
         reelTrack.style.transform = `translateX(-${currentX}px)`;
 
-        // Tính thẻ hiện đang đi qua kim chỉ tâm để phát âm thanh Tick gõ
+        // Tính vận tốc tức thời thực tế v(t) (pixels/ms)
+        const dt = Math.max(1, now - lastFrameTime);
+        const dx = currentX - lastX;
+        const currentVelocity = dx / dt;
+        lastFrameTime = now;
+        lastX = currentX;
+
+        // Vị trí kim chỉ tâm hiện tại trên dải thẻ
         const needleCenterInTrack = currentX + (viewportWidth / 2);
         const currentPassingIndex = Math.floor(needleCenterInTrack / cardStep);
 
-        if (currentPassingIndex !== lastTickCardIndex && currentPassingIndex >= 0 && currentPassingIndex < 50) {
-          lastTickCardIndex = currentPassingIndex;
-          sound.playReelTick();
+        // 3. ĐỒNG BỘ ÂM THANH TICK TỰ NHIÊN DỰA TRÊN VẬN TỐC THỰC TẾ:
+        // Phát âm thanh khi ranh giới thẻ lướt qua kim. Tần số tiếng gõ thưa dần theo vận tốc v(t)
+        // và tắt hẳn cùng lúc khi quán tính cạn dần v -> 0 ở mốc 15 giây.
+        if (currentPassingIndex !== lastTickCardIndex && currentPassingIndex >= 0 && currentPassingIndex < TOTAL_CARDS) {
+          if (now - lastTickTime >= 26) {
+            lastTickCardIndex = currentPassingIndex;
+            lastTickTime = now;
+            sound.playReelTick(currentVelocity);
+          }
+        }
+
+        // Cập nhật trạng thái hiển thị kịch tính theo thời gian thực (15s):
+        // - 12s – 15s (progress >= 0.80): "bò" siêu chậm do quán tính cạn dần
+        // - 6s – 12s (progress >= 0.40): ma sát hãm đà rõ rệt, thẻ tướng lộ rõ nét
+        // - 0s – 6s (progress < 0.40): cuộn xé gió vận tốc cực đại
+        if (progress >= 0.80) {
+          reelStatus.innerHTML = `<span class="text-yellow-400 font-bold flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-ping"></span> QUÁN TÍNH CẠN DẦN &bull; BÒ SIÊU CHẬM VÀO ĐÍCH...</span>`;
+        } else if (progress >= 0.40) {
+          reelStatus.innerHTML = `<span class="text-cyber-cyan font-bold flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-cyber-cyan"></span> MA SÁT HÃM ĐÀ &bull; DẢI THẺ CHẬM DẦN...</span>`;
         }
 
         if (progress < 1) {
           reelAnimFrameId = requestAnimationFrame(step);
         } else {
-          // KẾT THÚC DẢI TRƯỢT
+          // KẾT THÚC DẢI TRƯỢT TỰ NHIÊN:
+          // Vận tốc v đã về 0 một cách êm ái. Tuyệt đối KHÔNG có bất kỳ đoạn mã snap, jump hay bounce nào!
           reelTrack.style.transform = `translateX(-${targetX}px)`;
           state.isSpinning = false;
           state.caseStage = "finished";
 
-          // Làm nổi bật thẻ chiến thắng
+          // Làm nổi bật nhẹ thẻ trúng giải bằng hiệu ứng viền phát sáng (không biến dạng kích thước gây giật)
           const winnerCardEl = document.getElementById(`reel-card-${winnerPos}`);
           if (winnerCardEl) {
-            winnerCardEl.classList.add("scale-105", "z-20", "border-neon-green", "box-glow-green");
-            winnerCardEl.style.boxShadow = "0 0 25px #00FF66, inset 0 0 15px rgba(0,255,102,0.4)";
+            winnerCardEl.classList.add("border-neon-green", "z-10");
+            winnerCardEl.style.boxShadow = "0 0 30px #00FF66, inset 0 0 18px rgba(0,255,102,0.4)";
           }
 
           reelStatus.innerHTML = `<span class="text-neon-green font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-neon-green"></i> ĐÃ MỞ: ${winnerHero.name.toUpperCase()} (#${winnerHero.id})</span>`;
@@ -2203,10 +2296,10 @@
 
           saveSpinRecord(spinRecord);
 
-          // Hiển thị Winner Modal sau 600ms để người dùng kịp chiêm ngưỡng vị trí kim dừng
+          // Hiển thị Winner Modal sau 800ms để người dùng thoải mái ngắm vị trí kim dừng ngẫu nhiên trên thẻ
           setTimeout(() => {
             showWinnerModal(winnerHero, result, timeStr, getActiveHeroes().length);
-          }, 600);
+          }, 800);
         }
       }
 
