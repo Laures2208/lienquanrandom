@@ -2073,16 +2073,37 @@
         stageReel.classList.add("opacity-100");
 
         // Tạo 140 thẻ tướng: vị trí số 110 (index 109) là winnerHero
+        // Đảm bảo không có 2 thẻ tướng liền kề trùng nhau (cards[i].id !== cards[i-1].id)
+        // và đảm bảo winnerHero ở vị trí #110 không trùng với thẻ #109 và #111
         const TOTAL_CARDS = 140;
         const WINNER_POS = 109; // index 109 = thẻ số 110
         const cardsData = [];
 
+        // Helper chọn ngẫu nhiên 1 tướng trong activeHeroes không trùng với các ID bị loại trừ
+        function pickRandomHero(excludedIds = []) {
+          const validHeroes = activeHeroes.filter(h => !excludedIds.includes(h.id));
+          if (validHeroes.length > 0) {
+            return validHeroes[Math.floor(Math.random() * validHeroes.length)];
+          }
+          // Fallback dự phòng nếu danh sách kích hoạt quá ít tướng
+          return activeHeroes[Math.floor(Math.random() * activeHeroes.length)];
+        }
+
         for (let i = 0; i < TOTAL_CARDS; i++) {
           if (i === WINNER_POS) {
             cardsData.push(winnerHero);
+          } else if (i === WINNER_POS - 1) {
+            // Thẻ số #109 (ngay trước thẻ thắng): Không được trùng với thẻ #108 và KHÔNG được trùng với winnerHero (#110)
+            const prevId = cardsData.length > 0 ? cardsData[cardsData.length - 1].id : null;
+            const excluded = [winnerHero.id];
+            if (prevId !== null) excluded.push(prevId);
+            cardsData.push(pickRandomHero(excluded));
           } else {
-            const randIdx = Math.floor(Math.random() * activeHeroes.length);
-            cardsData.push(activeHeroes[randIdx]);
+            // Các thẻ thông thường: Không được trùng với thẻ ngay trước đó.
+            // Nếu ở vị trí WINNER_POS + 1 (#111): Không được trùng với winnerHero (#110)
+            const prevHero = cardsData.length > 0 ? cardsData[cardsData.length - 1] : null;
+            const excluded = prevHero ? [prevHero.id] : [];
+            cardsData.push(pickRandomHero(excluded));
           }
         }
 
