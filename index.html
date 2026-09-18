@@ -369,14 +369,22 @@
             </div>
 
             <!-- Matrix Hero Decryptor Strip (Real-time cyber roll display) -->
-            <div class="w-full mb-4 p-3 bg-cyber-surface/90 border border-cyber-border clip-chamfer flex flex-col sm:flex-row items-center justify-between gap-2">
-              <div class="flex items-center space-x-3">
-                <span class="text-xs font-tech text-gray-400 tracking-wider">TARGET:</span>
-                <span id="decryptor-id" class="text-xs font-tech font-bold px-2 py-0.5 bg-neon-green/20 text-neon-green border border-neon-green/40">ID #---</span>
-                <span id="decryptor-name" class="text-base sm:text-lg font-tech font-bold text-white tracking-widest neon-glow-green">SẴN SÀNG QUAY</span>
+            <div class="w-full mb-4 p-3 bg-cyber-surface/90 border border-cyber-border clip-chamfer flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div class="flex items-center space-x-3 w-full sm:w-auto">
+                <div class="w-11 h-11 rounded-lg border border-neon-green/60 overflow-hidden bg-cyber-dark flex-shrink-0 relative box-glow-green">
+                  <img id="decryptor-avatar" src="/heroes/1.jpg" alt="Hero Avatar" class="w-full h-full object-cover" onerror="handleAvatarError(this, 'Tamyn', 'Trợ Thủ', 1)" />
+                  <div class="absolute inset-0 bg-gradient-to-t from-neon-green/20 to-transparent pointer-events-none"></div>
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-[10px] font-tech text-gray-400 tracking-wider">TARGET:</span>
+                    <span id="decryptor-id" class="text-xs font-tech font-bold px-1.5 py-0.2 bg-neon-green/20 text-neon-green border border-neon-green/40">ID #---</span>
+                  </div>
+                  <div id="decryptor-name" class="text-base sm:text-lg font-tech font-bold text-white tracking-widest neon-glow-green truncate max-w-[200px] sm:max-w-[280px]">SẴN SÀNG QUAY</div>
+                </div>
               </div>
               <div class="flex items-center space-x-2">
-                <span id="decryptor-role" class="text-xs font-tech px-2 py-0.5 bg-cyber-dark border border-cyber-border text-gray-300">TẤT CẢ VỊ TRÍ</span>
+                <span id="decryptor-role" class="text-xs font-tech px-2.5 py-1 bg-cyber-dark border border-cyber-border text-gray-300">TẤT CẢ VỊ TRÍ</span>
               </div>
             </div>
 
@@ -583,6 +591,27 @@
         <div class="absolute -right-8 -bottom-8 text-7xl text-neon-green/5 font-tech font-black pointer-events-none" id="modal-winner-bg-id">
           #00
         </div>
+
+        <!-- Cyberpunk Hologram Hero Avatar Frame -->
+        <div class="relative w-36 h-36 sm:w-44 sm:h-44 mx-auto mb-3 rounded-xl overflow-hidden border-2 border-neon-green box-glow-green bg-cyber-dark group shadow-[0_0_25px_rgba(0,255,102,0.35)]">
+          <img 
+            id="modal-winner-avatar" 
+            src="/heroes/1.jpg" 
+            alt="Hero Avatar" 
+            class="w-full h-full object-cover transform hover:scale-105 transition-transform duration-300"
+            onerror="handleAvatarError(this, document.getElementById('modal-winner-name')?.textContent || 'Hero', '', 1)"
+          />
+          <!-- Hologram Scanline & HUD Tech Corners -->
+          <div class="absolute inset-0 bg-gradient-to-b from-transparent via-neon-green/5 to-neon-green/20 pointer-events-none"></div>
+          <div class="absolute top-1 left-1 w-3 h-3 border-t-2 border-l-2 border-neon-green pointer-events-none"></div>
+          <div class="absolute top-1 right-1 w-3 h-3 border-t-2 border-r-2 border-neon-green pointer-events-none"></div>
+          <div class="absolute bottom-1 left-1 w-3 h-3 border-b-2 border-l-2 border-neon-green pointer-events-none"></div>
+          <div class="absolute bottom-1 right-1 w-3 h-3 border-b-2 border-r-2 border-neon-green pointer-events-none"></div>
+          <div class="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded bg-cyber-dark/90 text-[10px] font-tech text-neon-green border border-neon-green/40">
+            AOV HOLOGRAM
+          </div>
+        </div>
+
         <div class="text-xs font-tech px-2.5 py-1 inline-block bg-cyber-dark border border-neon-green/50 text-neon-green rounded mb-2" id="modal-winner-id">
           TƯỚNG LIÊN QUÂN #000
         </div>
@@ -590,7 +619,7 @@
           TÊN TƯỚNG
         </div>
         <div class="mt-2 flex items-center justify-center gap-2">
-          <span id="modal-winner-role" class="text-xs font-tech px-3 py-1 bg-cyber-cyan/10 text-cyber-cyan border border-cyber-cyan/30 rounded">
+          <span id="modal-winner-role" class="text-xs font-tech px-3 py-1 bg-cyber-cyan/10 text-cyber-cyan border border-cyber-cyan/30 rounded font-bold">
             VỊ TRÍ: ĐẤU SĨ
           </span>
         </div>
@@ -703,137 +732,204 @@
      * Toàn bộ mã nguồn hoàn chỉnh chuẩn Vercel Single-Page Deployment
      */
 
-    // 1. DANH SÁCH 129 TƯỚNG LIÊN QUAN MOBILE THEO ĐÚNG THỨ TỰ VÀ ID YÊU CẦU
+    // 0. HỆ THỐNG XỬ LÝ AVATAR TỰ ĐỘNG THỬ ĐỊNH DẠNG FILE (SMART FALLBACK EXTENSION)
+    // Chuỗi thử nghiệm tự động: .jpg -> .png -> .jpeg -> .gif -> Online CDN AOV -> Cyberpunk Hologram SVG
+    function handleAvatarError(imgElement, heroName, role, id) {
+      if (!imgElement) return;
+      const heroId = parseInt(id, 10) || 1;
+      let step = parseInt(imgElement.getAttribute("data-fallback-step") || "0", 10);
+
+      // Bước 1: Nếu .jpg lỗi, tự động chuyển sang thử định dạng .png
+      if (step === 0) {
+        imgElement.setAttribute("data-fallback-step", "1");
+        imgElement.src = `/heroes/${heroId}.png`;
+        return;
+      }
+      // Bước 2: Nếu .png vẫn lỗi, thử tiếp .jpeg (dành cho 24.jpeg, 25.jpeg,...)
+      if (step === 1) {
+        imgElement.setAttribute("data-fallback-step", "2");
+        imgElement.src = `/heroes/${heroId}.jpeg`;
+        return;
+      }
+      // Bước 3: Nếu .jpeg vẫn lỗi, thử tiếp .gif (dành cho 74.gif,...)
+      if (step === 2) {
+        imgElement.setAttribute("data-fallback-step", "3");
+        imgElement.src = `/heroes/${heroId}.gif`;
+        return;
+      }
+      // Bước 4: Nếu tất cả file nội bộ đều không có, chuyển sang CDN trực tuyến Liên Quân Mobile
+      if (step === 3) {
+        imgElement.setAttribute("data-fallback-step", "4");
+        imgElement.src = `https://img.lienquan.garena.vn/public/upload/hero/${heroId}.jpg`;
+        return;
+      }
+
+      // Bước 5: Cuối cùng nếu cả CDN cũng lỗi/mất mạng -> Dùng Avatar SVG Cyberpunk Hologram chuẩn Sci-Fi
+      imgElement.onerror = null;
+      imgElement.removeAttribute("data-fallback-step");
+
+      const roleColors = {
+        "Đấu Sĩ": ["#FF5722", "#E64A19"],
+        "Pháp Sư": ["#9C27B0", "#7B1FA2"],
+        "Xạ Thủ": ["#FFB300", "#FF8F00"],
+        "Sát Thủ": ["#E91E63", "#C2185B"],
+        "Trợ Thủ": ["#00E5FF", "#00B0FF"],
+        "Đỡ Đòn": ["#00FF66", "#00C853"]
+      };
+      const colors = roleColors[role] || ["#00FF66", "#00E5FF"];
+      const initials = (heroName || "LQ").split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
+      const heroIdNum = heroId;
+      const idLabel = heroIdNum < 10 ? '0' + heroIdNum : heroIdNum;
+
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+        <defs>
+          <linearGradient id="g_${heroIdNum}" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="${colors[0]}" stop-opacity="0.8"/>
+            <stop offset="100%" stop-color="${colors[1]}" stop-opacity="0.3"/>
+          </linearGradient>
+        </defs>
+        <rect width="128" height="128" fill="#0E1626"/>
+        <rect x="3" y="3" width="122" height="122" rx="8" fill="url(#g_${heroIdNum})" stroke="${colors[0]}" stroke-width="2"/>
+        <circle cx="64" cy="56" r="30" fill="#0A0E17" stroke="${colors[0]}" stroke-width="1.5" stroke-dasharray="4,2"/>
+        <text x="64" y="65" font-family="'Orbitron', sans-serif" font-weight="900" font-size="22" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">${initials}</text>
+        <rect x="24" y="96" width="80" height="20" rx="4" fill="#0A0E17" stroke="${colors[0]}" stroke-width="1"/>
+        <text x="64" y="110" font-family="'Rajdhani', sans-serif" font-weight="700" font-size="12" fill="${colors[0]}" text-anchor="middle" dominant-baseline="middle">#${idLabel}</text>
+      </svg>`;
+
+      imgElement.src = "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+    }
+
+    // 1. DANH SÁCH 129 TƯỚNG LIÊN QUAN MOBILE MẶC ĐỊNH ĐƯỜNG DẪN /heroes/{id}.jpg
     const HERO_LIST = [
-      { id: 1, name: "Tamyn", role: "Trợ Thủ" },
-      { id: 2, name: "Flowborn (xạ thủ)", role: "Xạ Thủ" },
-      { id: 3, name: "Flowborn (pháp sư)", role: "Pháp Sư" },
-      { id: 4, name: "Dyadia", role: "Trợ Thủ" },
-      { id: 5, name: "Edras", role: "Đấu Sĩ" },
-      { id: 6, name: "Goverra", role: "Trợ Thủ" },
-      { id: 7, name: "Heino", role: "Pháp Sư" },
-      { id: 8, name: "Billow", role: "Trợ Thủ" },
-      { id: 9, name: "Bolt Baron", role: "Đấu Sĩ" },
-      { id: 10, name: "Biron", role: "Đấu Sĩ" },
-      { id: 11, name: "Dolia", role: "Trợ Thủ" },
-      { id: 12, name: "Charlotte", role: "Đấu Sĩ" },
-      { id: 13, name: "Tachi", role: "Đấu Sĩ" },
-      { id: 14, name: "Dirak", role: "Pháp Sư" },
-      { id: 15, name: "Qi", role: "Đấu Sĩ" },
-      { id: 16, name: "Erin", role: "Xạ Thủ" },
-      { id: 17, name: "Ming", role: "Trợ Thủ" },
-      { id: 18, name: "Bijan", role: "Đấu Sĩ" },
-      { id: 19, name: "Bonnie", role: "Pháp Sư" },
-      { id: 20, name: "Teeri", role: "Xạ Thủ" },
-      { id: 21, name: "Yue", role: "Pháp Sư" },
-      { id: 22, name: "Yan", role: "Sát Thủ" },
-      { id: 23, name: "Aya", role: "Trợ Thủ" },
-      { id: 24, name: "Aoi", role: "Sát Thủ" },
-      { id: 25, name: "Iggy", role: "Pháp Sư" },
-      { id: 26, name: "Bright", role: "Sát Thủ" },
-      { id: 27, name: "Lorion", role: "Pháp Sư" },
-      { id: 28, name: "Dextra", role: "Đấu Sĩ" },
-      { id: 29, name: "Sinestrea", role: "Sát Thủ" },
-      { id: 30, name: "Thorne", role: "Xạ Thủ" },
-      { id: 31, name: "Allain", role: "Đấu Sĩ" },
-      { id: 32, name: "Zata", role: "Pháp Sư" },
-      { id: 33, name: "Rouie", role: "Trợ Thủ" },
-      { id: 34, name: "Laville", role: "Xạ Thủ" },
-      { id: 35, name: "Paine", role: "Sát Thủ" },
-      { id: 36, name: "Ata", role: "Đỡ Đòn" },
-      { id: 37, name: "Keera", role: "Sát Thủ" },
-      { id: 38, name: "Ishar", role: "Pháp Sư" },
-      { id: 39, name: "Eland'orr", role: "Xạ Thủ" },
-      { id: 40, name: "Krizzix", role: "Trợ Thủ" },
-      { id: 41, name: "Volkath", role: "Đấu Sĩ" },
-      { id: 42, name: "Celica", role: "Xạ Thủ" },
-      { id: 43, name: "Zip", role: "Trợ Thủ" },
-      { id: 44, name: "Enzo", role: "Sát Thủ" },
-      { id: 45, name: "Yena", role: "Đấu Sĩ" },
-      { id: 46, name: "Errol", role: "Đấu Sĩ" },
-      { id: 47, name: "Capheny", role: "Xạ Thủ" },
-      { id: 48, name: "Hayate", role: "Xạ Thủ" },
-      { id: 49, name: "D'Arcy", role: "Pháp Sư" },
-      { id: 50, name: "Veres", role: "Đấu Sĩ" },
-      { id: 51, name: "Florentino", role: "Đấu Sĩ" },
-      { id: 52, name: "Sephera", role: "Pháp Sư" },
-      { id: 53, name: "Quillen", role: "Sát Thủ" },
-      { id: 54, name: "Wiro", role: "Đỡ Đòn" },
-      { id: 55, name: "Richter", role: "Đấu Sĩ" },
-      { id: 56, name: "Elsu", role: "Xạ Thủ" },
-      { id: 57, name: "Y'bneth", role: "Đỡ Đòn" },
-      { id: 58, name: "Amily", role: "Đấu Sĩ" },
-      { id: 59, name: "Annette", role: "Trợ Thủ" },
-      { id: 60, name: "Baldum", role: "Đỡ Đòn" },
-      { id: 61, name: "Roxie", role: "Đỡ Đòn" },
-      { id: 62, name: "Marja", role: "Pháp Sư" },
-      { id: 63, name: "Rourke", role: "Đấu Sĩ" },
-      { id: 64, name: "Arum", role: "Trợ Thủ" },
-      { id: 65, name: "Wisp", role: "Xạ Thủ" },
-      { id: 66, name: "The Flash", role: "Pháp Sư" },
-      { id: 67, name: "Max", role: "Đấu Sĩ" },
-      { id: 68, name: "Liliana", role: "Pháp Sư" },
-      { id: 69, name: "Tulen", role: "Pháp Sư" },
-      { id: 70, name: "Omen", role: "Đấu Sĩ" },
-      { id: 71, name: "Lindis", role: "Xạ Thủ" },
-      { id: 72, name: "TeeMee", role: "Trợ Thủ" },
-      { id: 73, name: "Moren", role: "Xạ Thủ" },
-      { id: 74, name: "Kil'Groth", role: "Đấu Sĩ" },
-      { id: 75, name: "Xeniel", role: "Đỡ Đòn" },
-      { id: 76, name: "Wonder Woman", role: "Đấu Sĩ" },
-      { id: 77, name: "Superman", role: "Đấu Sĩ" },
-      { id: 78, name: "Tel'Annas", role: "Xạ Thủ" },
-      { id: 79, name: "Astrid", role: "Đấu Sĩ" },
-      { id: 80, name: "Ryoma", role: "Đấu Sĩ" },
-      { id: 81, name: "Stuart (The Joker)", role: "Xạ Thủ" },
-      { id: 82, name: "Arduin", role: "Đỡ Đòn" },
-      { id: 83, name: "Zill", role: "Sát Thủ" },
-      { id: 84, name: "Murad", role: "Sát Thủ" },
-      { id: 85, name: "Ignis", role: "Pháp Sư" },
-      { id: 86, name: "Zuka", role: "Đấu Sĩ" },
-      { id: 87, name: "Airi", role: "Sát Thủ" },
-      { id: 88, name: "Kaine (Batman)", role: "Sát Thủ" },
-      { id: 89, name: "Lauriel", role: "Pháp Sư" },
-      { id: 90, name: "Raz", role: "Pháp Sư" },
-      { id: 91, name: "Skud", role: "Đấu Sĩ" },
-      { id: 92, name: "Preyta", role: "Pháp Sư" },
-      { id: 93, name: "Ilumia", role: "Pháp Sư" },
-      { id: 94, name: "Slimz", role: "Xạ Thủ" },
-      { id: 95, name: "Arthur", role: "Đấu Sĩ" },
-      { id: 96, name: "Kriknak", role: "Sát Thủ" },
-      { id: 97, name: "Ngộ Không", role: "Sát Thủ" },
-      { id: 98, name: "Maloch", role: "Đấu Sĩ" },
-      { id: 99, name: "Helen (Payna)", role: "Trợ Thủ" },
-      { id: 100, name: "Jinna", role: "Pháp Sư" },
-      { id: 101, name: "Cresht", role: "Đỡ Đòn" },
-      { id: 102, name: "Natalya", role: "Pháp Sư" },
-      { id: 103, name: "Lumburr", role: "Đỡ Đòn" },
-      { id: 104, name: "Fennik", role: "Xạ Thủ" },
-      { id: 105, name: "Aleister", role: "Pháp Sư" },
-      { id: 106, name: "Grakk", role: "Đỡ Đòn" },
-      { id: 107, name: "Nakroth", role: "Sát Thủ" },
-      { id: 108, name: "Taara", role: "Đỡ Đòn" },
-      { id: 109, name: "Toro", role: "Đỡ Đòn" },
-      { id: 110, name: "Yorn", role: "Xạ Thủ" },
-      { id: 111, name: "Gildur", role: "Đỡ Đòn" },
-      { id: 112, name: "Alice", role: "Trợ Thủ" },
-      { id: 113, name: "Azzen'Ka", role: "Pháp Sư" },
-      { id: 114, name: "Ormarr", role: "Đấu Sĩ" },
-      { id: 115, name: "Butterfly", role: "Sát Thủ" },
-      { id: 116, name: "Violet", role: "Xạ Thủ" },
-      { id: 117, name: "Chaugnar", role: "Đỡ Đòn" },
-      { id: 118, name: "Điêu Thuyền", role: "Pháp Sư" },
-      { id: 119, name: "Zephys", role: "Đấu Sĩ" },
-      { id: 120, name: "Kahlii", role: "Pháp Sư" },
-      { id: 121, name: "Omega", role: "Đỡ Đòn" },
-      { id: 122, name: "Triệu Vân", role: "Sát Thủ" },
-      { id: 123, name: "Mganga", role: "Pháp Sư" },
-      { id: 124, name: "Krixi", role: "Pháp Sư" },
-      { id: 125, name: "Mina", role: "Đỡ Đòn" },
-      { id: 126, name: "Lữ Bố", role: "Đấu Sĩ" },
-      { id: 127, name: "Veera", role: "Pháp Sư" },
-      { id: 128, name: "Thane", role: "Đỡ Đòn" },
-      { id: 129, name: "Valhein", role: "Xạ Thủ" }
+      { id: 1, name: "Tamyn", role: "Trợ Thủ", avatar: "/heroes/1.jpg" },
+      { id: 2, name: "Flowborn (xạ thủ)", role: "Xạ Thủ", avatar: "/heroes/2.jpg" },
+      { id: 3, name: "Flowborn (pháp sư)", role: "Pháp Sư", avatar: "/heroes/3.jpg" },
+      { id: 4, name: "Dyadia", role: "Trợ Thủ", avatar: "/heroes/4.jpg" },
+      { id: 5, name: "Edras", role: "Đấu Sĩ", avatar: "/heroes/5.jpg" },
+      { id: 6, name: "Goverra", role: "Trợ Thủ", avatar: "/heroes/6.jpg" },
+      { id: 7, name: "Heino", role: "Pháp Sư", avatar: "/heroes/7.jpg" },
+      { id: 8, name: "Billow", role: "Trợ Thủ", avatar: "/heroes/8.jpg" },
+      { id: 9, name: "Bolt Baron", role: "Đấu Sĩ", avatar: "/heroes/9.jpg" },
+      { id: 10, name: "Biron", role: "Đấu Sĩ", avatar: "/heroes/10.jpg" },
+      { id: 11, name: "Dolia", role: "Trợ Thủ", avatar: "/heroes/11.jpg" },
+      { id: 12, name: "Charlotte", role: "Đấu Sĩ", avatar: "/heroes/12.jpg" },
+      { id: 13, name: "Tachi", role: "Đấu Sĩ", avatar: "/heroes/13.jpg" },
+      { id: 14, name: "Dirak", role: "Pháp Sư", avatar: "/heroes/14.jpg" },
+      { id: 15, name: "Qi", role: "Đấu Sĩ", avatar: "/heroes/15.jpg" },
+      { id: 16, name: "Erin", role: "Xạ Thủ", avatar: "/heroes/16.jpg" },
+      { id: 17, name: "Ming", role: "Trợ Thủ", avatar: "/heroes/17.jpg" },
+      { id: 18, name: "Bijan", role: "Đấu Sĩ", avatar: "/heroes/18.jpg" },
+      { id: 19, name: "Bonnie", role: "Pháp Sư", avatar: "/heroes/19.jpg" },
+      { id: 20, name: "Teeri", role: "Xạ Thủ", avatar: "/heroes/20.jpg" },
+      { id: 21, name: "Yue", role: "Pháp Sư", avatar: "/heroes/21.jpg" },
+      { id: 22, name: "Yan", role: "Sát Thủ", avatar: "/heroes/22.jpg" },
+      { id: 23, name: "Aya", role: "Trợ Thủ", avatar: "/heroes/23.jpg" },
+      { id: 24, name: "Aoi", role: "Sát Thủ", avatar: "/heroes/24.jpg" },
+      { id: 25, name: "Iggy", role: "Pháp Sư", avatar: "/heroes/25.jpg" },
+      { id: 26, name: "Bright", role: "Sát Thủ", avatar: "/heroes/26.jpg" },
+      { id: 27, name: "Lorion", role: "Pháp Sư", avatar: "/heroes/27.jpg" },
+      { id: 28, name: "Dextra", role: "Đấu Sĩ", avatar: "/heroes/28.jpg" },
+      { id: 29, name: "Sinestrea", role: "Sát Thủ", avatar: "/heroes/29.jpg" },
+      { id: 30, name: "Thorne", role: "Xạ Thủ", avatar: "/heroes/30.jpg" },
+      { id: 31, name: "Allain", role: "Đấu Sĩ", avatar: "/heroes/31.jpg" },
+      { id: 32, name: "Zata", role: "Pháp Sư", avatar: "/heroes/32.jpg" },
+      { id: 33, name: "Rouie", role: "Trợ Thủ", avatar: "/heroes/33.jpg" },
+      { id: 34, name: "Laville", role: "Xạ Thủ", avatar: "/heroes/34.jpg" },
+      { id: 35, name: "Paine", role: "Sát Thủ", avatar: "/heroes/35.jpg" },
+      { id: 36, name: "Ata", role: "Đỡ Đòn", avatar: "/heroes/36.jpg" },
+      { id: 37, name: "Keera", role: "Sát Thủ", avatar: "/heroes/37.jpg" },
+      { id: 38, name: "Ishar", role: "Pháp Sư", avatar: "/heroes/38.jpg" },
+      { id: 39, name: "Eland'orr", role: "Xạ Thủ", avatar: "/heroes/39.jpg" },
+      { id: 40, name: "Krizzix", role: "Trợ Thủ", avatar: "/heroes/40.jpg" },
+      { id: 41, name: "Volkath", role: "Đấu Sĩ", avatar: "/heroes/41.jpg" },
+      { id: 42, name: "Celica", role: "Xạ Thủ", avatar: "/heroes/42.jpg" },
+      { id: 43, name: "Zip", role: "Trợ Thủ", avatar: "/heroes/43.jpg" },
+      { id: 44, name: "Enzo", role: "Sát Thủ", avatar: "/heroes/44.jpg" },
+      { id: 45, name: "Yena", role: "Đấu Sĩ", avatar: "/heroes/45.jpg" },
+      { id: 46, name: "Errol", role: "Đấu Sĩ", avatar: "/heroes/46.jpg" },
+      { id: 47, name: "Capheny", role: "Xạ Thủ", avatar: "/heroes/47.jpg" },
+      { id: 48, name: "Hayate", role: "Xạ Thủ", avatar: "/heroes/48.jpg" },
+      { id: 49, name: "D'Arcy", role: "Pháp Sư", avatar: "/heroes/49.jpg" },
+      { id: 50, name: "Veres", role: "Đấu Sĩ", avatar: "/heroes/50.jpg" },
+      { id: 51, name: "Florentino", role: "Đấu Sĩ", avatar: "/heroes/51.jpg" },
+      { id: 52, name: "Sephera", role: "Pháp Sư", avatar: "/heroes/52.jpg" },
+      { id: 53, name: "Quillen", role: "Sát Thủ", avatar: "/heroes/53.jpg" },
+      { id: 54, name: "Wiro", role: "Đỡ Đòn", avatar: "/heroes/54.jpg" },
+      { id: 55, name: "Richter", role: "Đấu Sĩ", avatar: "/heroes/55.jpg" },
+      { id: 56, name: "Elsu", role: "Xạ Thủ", avatar: "/heroes/56.jpg" },
+      { id: 57, name: "Y'bneth", role: "Đỡ Đòn", avatar: "/heroes/57.jpg" },
+      { id: 58, name: "Amily", role: "Đấu Sĩ", avatar: "/heroes/58.jpg" },
+      { id: 59, name: "Annette", role: "Trợ Thủ", avatar: "/heroes/59.jpg" },
+      { id: 60, name: "Baldum", role: "Đỡ Đòn", avatar: "/heroes/60.jpg" },
+      { id: 61, name: "Roxie", role: "Đỡ Đòn", avatar: "/heroes/61.jpg" },
+      { id: 62, name: "Marja", role: "Pháp Sư", avatar: "/heroes/62.jpg" },
+      { id: 63, name: "Rourke", role: "Đấu Sĩ", avatar: "/heroes/63.jpg" },
+      { id: 64, name: "Arum", role: "Trợ Thủ", avatar: "/heroes/64.jpg" },
+      { id: 65, name: "Wisp", role: "Xạ Thủ", avatar: "/heroes/65.jpg" },
+      { id: 66, name: "The Flash", role: "Pháp Sư", avatar: "/heroes/66.jpg" },
+      { id: 67, name: "Max", role: "Đấu Sĩ", avatar: "/heroes/67.jpg" },
+      { id: 68, name: "Liliana", role: "Pháp Sư", avatar: "/heroes/68.jpg" },
+      { id: 69, name: "Tulen", role: "Pháp Sư", avatar: "/heroes/69.jpg" },
+      { id: 70, name: "Omen", role: "Đấu Sĩ", avatar: "/heroes/70.jpg" },
+      { id: 71, name: "Lindis", role: "Xạ Thủ", avatar: "/heroes/71.jpg" },
+      { id: 72, name: "TeeMee", role: "Trợ Thủ", avatar: "/heroes/72.jpg" },
+      { id: 73, name: "Moren", role: "Xạ Thủ", avatar: "/heroes/73.jpg" },
+      { id: 74, name: "Kil'Groth", role: "Đấu Sĩ", avatar: "/heroes/74.jpg" },
+      { id: 75, name: "Xeniel", role: "Đỡ Đòn", avatar: "/heroes/75.jpg" },
+      { id: 76, name: "Wonder Woman", role: "Đấu Sĩ", avatar: "/heroes/76.jpg" },
+      { id: 77, name: "Superman", role: "Đấu Sĩ", avatar: "/heroes/77.jpg" },
+      { id: 78, name: "Tel'Annas", role: "Xạ Thủ", avatar: "/heroes/78.jpg" },
+      { id: 79, name: "Astrid", role: "Đấu Sĩ", avatar: "/heroes/79.jpg" },
+      { id: 80, name: "Ryoma", role: "Đấu Sĩ", avatar: "/heroes/80.jpg" },
+      { id: 81, name: "Stuart (The Joker)", role: "Xạ Thủ", avatar: "/heroes/81.jpg" },
+      { id: 82, name: "Arduin", role: "Đỡ Đòn", avatar: "/heroes/82.jpg" },
+      { id: 83, name: "Zill", role: "Sát Thủ", avatar: "/heroes/83.jpg" },
+      { id: 84, name: "Murad", role: "Sát Thủ", avatar: "/heroes/84.jpg" },
+      { id: 85, name: "Ignis", role: "Pháp Sư", avatar: "/heroes/85.jpg" },
+      { id: 86, name: "Zuka", role: "Đấu Sĩ", avatar: "/heroes/86.jpg" },
+      { id: 87, name: "Airi", role: "Sát Thủ", avatar: "/heroes/87.jpg" },
+      { id: 88, name: "Kaine (Batman)", role: "Sát Thủ", avatar: "/heroes/88.jpg" },
+      { id: 89, name: "Lauriel", role: "Pháp Sư", avatar: "/heroes/89.jpg" },
+      { id: 90, name: "Raz", role: "Pháp Sư", avatar: "/heroes/90.jpg" },
+      { id: 91, name: "Skud", role: "Đấu Sĩ", avatar: "/heroes/91.jpg" },
+      { id: 92, name: "Preyta", role: "Pháp Sư", avatar: "/heroes/92.jpg" },
+      { id: 93, name: "Ilumia", role: "Pháp Sư", avatar: "/heroes/93.jpg" },
+      { id: 94, name: "Slimz", role: "Xạ Thủ", avatar: "/heroes/94.jpg" },
+      { id: 95, name: "Arthur", role: "Đấu Sĩ", avatar: "/heroes/95.jpg" },
+      { id: 96, name: "Kriknak", role: "Sát Thủ", avatar: "/heroes/96.jpg" },
+      { id: 97, name: "Ngộ Không", role: "Sát Thủ", avatar: "/heroes/97.jpg" },
+      { id: 98, name: "Maloch", role: "Đấu Sĩ", avatar: "/heroes/98.jpg" },
+      { id: 99, name: "Helen (Payna)", role: "Trợ Thủ", avatar: "/heroes/99.jpg" },
+      { id: 100, name: "Jinna", role: "Pháp Sư", avatar: "/heroes/100.jpg" },
+      { id: 101, name: "Cresht", role: "Đỡ Đòn", avatar: "/heroes/101.jpg" },
+      { id: 102, name: "Natalya", role: "Pháp Sư", avatar: "/heroes/102.jpg" },
+      { id: 103, name: "Lumburr", role: "Đỡ Đòn", avatar: "/heroes/103.jpg" },
+      { id: 104, name: "Fennik", role: "Xạ Thủ", avatar: "/heroes/104.jpg" },
+      { id: 105, name: "Aleister", role: "Pháp Sư", avatar: "/heroes/105.jpg" },
+      { id: 106, name: "Grakk", role: "Đỡ Đòn", avatar: "/heroes/106.jpg" },
+      { id: 107, name: "Nakroth", role: "Sát Thủ", avatar: "/heroes/107.jpg" },
+      { id: 108, name: "Taara", role: "Đỡ Đòn", avatar: "/heroes/108.jpg" },
+      { id: 109, name: "Toro", role: "Đỡ Đòn", avatar: "/heroes/109.jpg" },
+      { id: 110, name: "Yorn", role: "Xạ Thủ", avatar: "/heroes/110.jpg" },
+      { id: 111, name: "Gildur", role: "Đỡ Đòn", avatar: "/heroes/111.jpg" },
+      { id: 112, name: "Alice", role: "Trợ Thủ", avatar: "/heroes/112.jpg" },
+      { id: 113, name: "Azzen'Ka", role: "Pháp Sư", avatar: "/heroes/113.jpg" },
+      { id: 114, name: "Ormarr", role: "Đấu Sĩ", avatar: "/heroes/114.jpg" },
+      { id: 115, name: "Butterfly", role: "Sát Thủ", avatar: "/heroes/115.jpg" },
+      { id: 116, name: "Violet", role: "Xạ Thủ", avatar: "/heroes/116.jpg" },
+      { id: 117, name: "Chaugnar", role: "Đỡ Đòn", avatar: "/heroes/117.jpg" },
+      { id: 118, name: "Điêu Thuyền", role: "Pháp Sư", avatar: "/heroes/118.jpg" },
+      { id: 119, name: "Zephys", role: "Đấu Sĩ", avatar: "/heroes/119.jpg" },
+      { id: 120, name: "Kahlii", role: "Pháp Sư", avatar: "/heroes/120.jpg" },
+      { id: 121, name: "Omega", role: "Đỡ Đòn", avatar: "/heroes/121.jpg" },
+      { id: 122, name: "Triệu Vân", role: "Sát Thủ", avatar: "/heroes/122.jpg" },
+      { id: 123, name: "Mganga", role: "Pháp Sư", avatar: "/heroes/123.jpg" },
+      { id: 124, name: "Krixi", role: "Pháp Sư", avatar: "/heroes/124.jpg" },
+      { id: 125, name: "Mina", role: "Đỡ Đòn", avatar: "/heroes/125.jpg" },
+      { id: 126, name: "Lữ Bố", role: "Đấu Sĩ", avatar: "/heroes/126.jpg" },
+      { id: 127, name: "Veera", role: "Pháp Sư", avatar: "/heroes/127.jpg" },
+      { id: 128, name: "Thane", role: "Đỡ Đòn", avatar: "/heroes/128.jpg" },
+      { id: 129, name: "Valhein", role: "Xạ Thủ", avatar: "/heroes/129.jpg" }
     ];
 
     // 2. STATE QUẢN LÝ ỨNG DỤNG
@@ -1171,11 +1267,13 @@
       const decryptorId = document.getElementById("decryptor-id");
       const decryptorName = document.getElementById("decryptor-name");
       const decryptorRole = document.getElementById("decryptor-role");
+      const decryptorAvatar = document.getElementById("decryptor-avatar");
       
       const startTime = performance.now();
       const activeHeroes = getActiveHeroes();
+      let lastAvatarUpdate = 0;
       
-      function updateShuffle() {
+      function updateShuffle(now) {
         const elapsed = performance.now() - startTime;
         if (elapsed < durationMs) {
           // Chọn ngẫu nhiên 1 tướng để hiển thị tốc độ cao
@@ -1183,12 +1281,23 @@
           decryptorId.textContent = `ID #${randHero.id < 10 ? '0' + randHero.id : randHero.id}`;
           decryptorName.textContent = randHero.name.toUpperCase();
           decryptorRole.textContent = randHero.role;
+          if (decryptorAvatar && (now - lastAvatarUpdate > 120)) {
+            lastAvatarUpdate = now;
+            decryptorAvatar.removeAttribute("data-fallback-step");
+            decryptorAvatar.src = randHero.avatar;
+            decryptorAvatar.onerror = function() { handleAvatarError(this, randHero.name, randHero.role, randHero.id); };
+          }
           requestAnimationFrame(updateShuffle);
         } else {
           // Dừng lại đúng tướng chiến thắng
           decryptorId.textContent = `ID #${targetHero.id < 10 ? '0' + targetHero.id : targetHero.id}`;
           decryptorName.textContent = targetHero.name.toUpperCase();
           decryptorRole.textContent = targetHero.role;
+          if (decryptorAvatar) {
+            decryptorAvatar.removeAttribute("data-fallback-step");
+            decryptorAvatar.src = targetHero.avatar;
+            decryptorAvatar.onerror = function() { handleAvatarError(this, targetHero.name, targetHero.role, targetHero.id); };
+          }
         }
       }
       requestAnimationFrame(updateShuffle);
@@ -1306,6 +1415,7 @@
             heroId: winnerHero.id,
             heroName: winnerHero.name,
             role: winnerHero.role,
+            avatar: winnerHero.avatar,
             source: result.source,
             time: timeStr
           };
@@ -1361,6 +1471,16 @@
       document.getElementById("modal-winner-time").textContent = timeStr;
       document.getElementById("modal-winner-candidates").textContent = `${totalCandidates} Tướng`;
 
+      // Cập nhật Hologram Avatar với hiệu ứng tải an toàn
+      const modalAvatar = document.getElementById("modal-winner-avatar");
+      if (modalAvatar) {
+        modalAvatar.removeAttribute("data-fallback-step");
+        modalAvatar.src = hero.avatar || `/heroes/${hero.id}.jpg`;
+        modalAvatar.onerror = function() {
+          handleAvatarError(this, hero.name, hero.role, hero.id);
+        };
+      }
+
       modalWinner.classList.remove("hidden");
       setTimeout(() => {
         modalWinnerContent.classList.remove("scale-95", "opacity-0");
@@ -1400,9 +1520,19 @@
 
       historyContainer.innerHTML = state.history.map((item, index) => {
         const isRandomOrg = item.source.includes("RANDOM.ORG");
+        const avatarUrl = item.avatar || `/heroes/${item.heroId}.jpg`;
+        const heroNameEscaped = (item.heroName || '').replace(/'/g, "\\'");
         return `
           <div class="p-2.5 bg-cyber-surface/70 border border-cyber-border clip-chamfer flex items-center justify-between gap-2 hover:border-neon-green/40 transition-colors">
             <div class="flex items-center space-x-2.5">
+              <div class="w-9 h-9 rounded-md border border-neon-green/40 overflow-hidden bg-cyber-dark flex-shrink-0 relative">
+                <img 
+                  src="${avatarUrl}" 
+                  alt="${item.heroName}" 
+                  class="w-full h-full object-cover"
+                  onerror="handleAvatarError(this, '${heroNameEscaped}', '${item.role}', ${item.heroId})"
+                />
+              </div>
               <span class="text-xs font-tech font-bold px-1.5 py-0.5 bg-cyber-dark text-neon-green border border-neon-green/30">#${item.heroId}</span>
               <div>
                 <div class="text-sm font-tech font-bold text-white tracking-wide">${item.heroName}</div>
@@ -1413,7 +1543,7 @@
                 </div>
               </div>
             </div>
-            <div class="text-right">
+            <div class="text-right flex-shrink-0">
               <span class="text-[10px] font-tech px-1.5 py-0.5 rounded ${isRandomOrg ? 'bg-neon-green/10 text-neon-green border border-neon-green/30' : 'bg-cyber-cyan/10 text-cyber-cyan border border-cyber-cyan/30'}">
                 ${isRandomOrg ? 'RANDOM.ORG' : 'CRYPTO'}
               </span>
@@ -1456,19 +1586,28 @@
 
       container.innerHTML = filtered.map(h => {
         const isChecked = state.activeHeroIds.has(h.id);
+        const heroNameEscaped = h.name.replace(/'/g, "\\'");
         return `
           <label class="flex items-center justify-between p-1.5 px-2 hover:bg-cyber-dark/80 rounded cursor-pointer transition-colors border-b border-cyber-border/40 last:border-b-0">
-            <div class="flex items-center space-x-2.5">
+            <div class="flex items-center space-x-2.5 min-w-0">
               <input 
                 type="checkbox" 
                 data-hero-id="${h.id}" 
-                class="cyber-checkbox w-4 h-4 rounded bg-cyber-dark border border-cyber-border text-neon-green focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                class="cyber-checkbox w-4 h-4 rounded bg-cyber-dark border border-cyber-border text-neon-green focus:ring-0 focus:ring-offset-0 cursor-pointer flex-shrink-0"
                 ${isChecked ? 'checked' : ''}
               />
-              <span class="text-xs font-tech text-gray-400 w-7">#${h.id < 10 ? '0' + h.id : h.id}</span>
-              <span class="text-sm font-body font-semibold ${isChecked ? 'text-white' : 'text-gray-500 line-through'}">${h.name}</span>
+              <div class="w-7 h-7 rounded border border-cyber-border overflow-hidden bg-cyber-dark flex-shrink-0">
+                <img 
+                  src="${h.avatar}" 
+                  alt="${h.name}" 
+                  class="w-full h-full object-cover" 
+                  onerror="handleAvatarError(this, '${heroNameEscaped}', '${h.role}', ${h.id})"
+                />
+              </div>
+              <span class="text-xs font-tech text-gray-400 w-7 flex-shrink-0">#${h.id < 10 ? '0' + h.id : h.id}</span>
+              <span class="text-sm font-body font-semibold truncate ${isChecked ? 'text-white' : 'text-gray-500 line-through'}">${h.name}</span>
             </div>
-            <span class="text-[10px] font-tech px-2 py-0.5 bg-cyber-dark border border-cyber-border text-gray-400 rounded">
+            <span class="text-[10px] font-tech px-2 py-0.5 bg-cyber-dark border border-cyber-border text-gray-400 rounded flex-shrink-0 ml-2">
               ${h.role}
             </span>
           </label>
